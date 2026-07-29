@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fbf3e7;
+  --foreground: #1f3d2b;
+
+  --color-cream: #fbf3e7;
+  --color-forest: #1f3d2b;
+  --color-blush: #f2a6bc;
+  --color-blush-light: #fbdde6;
+  --color-sunflower: #f5c242;
+  --color-sunflower-light: #fbe6ab;
+  --color-teal: #6fa8a6;
+  --color-teal-light: #d3e8e7;
+  --color-lavender: #b79fcb;
+  --color-lavender-light: #e6dcef;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-cream: var(--color-cream);
+  --color-forest: var(--color-forest);
+  --color-blush: var(--color-blush);
+  --color-blush-light: var(--color-blush-light);
+  --color-sunflower: var(--color-sunflower);
+  --color-sunflower-light: var(--color-sunflower-light);
+  --color-teal: var(--color-teal);
+  --color-teal-light: var(--color-teal-light);
+  --color-lavender: var(--color-lavender);
+  --color-lavender-light: var(--color-lavender-light);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-fraunces);
+  --font-script: var(--font-caveat);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.blob {
+  border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+}
