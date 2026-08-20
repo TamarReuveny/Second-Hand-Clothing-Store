@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
-import { createListing } from "@/app/actions/listings";
+import { createListing, updateListing } from "@/app/actions/listings";
+import { getListingImageUrl } from "@/lib/supabase/storage";
+import type { ListingRow } from "@/lib/supabase/types";
 
 const CATEGORIES = [
   "tops",
@@ -16,18 +18,21 @@ const CONDITIONS = ["new", "like-new", "good", "fair"] as const;
 const inputClasses =
   "rounded-lg border border-forest/20 bg-white/60 px-3 py-2 text-forest focus:border-teal focus:outline-none";
 
-export default function SellForm() {
-  const [state, formAction, pending] = useActionState(
-    createListing,
-    undefined,
+export default function SellForm({ listing }: { listing?: ListingRow }) {
+  const isEditing = Boolean(listing);
+  const action = listing
+    ? updateListing.bind(null, listing.id)
+    : createListing;
+  const [state, formAction, pending] = useActionState(action, undefined);
+  const [preview, setPreview] = useState<string | null>(
+    listing ? getListingImageUrl(listing.image_path) : null,
   );
-  const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    setPreview(file ? URL.createObjectURL(file) : null);
+    setPreview(file ? URL.createObjectURL(file) : preview);
     setFileName(file?.name ?? null);
   }
 
@@ -43,7 +48,7 @@ export default function SellForm() {
           name="photo"
           type="file"
           accept="image/*"
-          required
+          required={!isEditing}
           onChange={handlePhotoChange}
           className="hidden"
         />
@@ -53,14 +58,14 @@ export default function SellForm() {
             onClick={() => fileInputRef.current?.click()}
             className="rounded-full bg-forest px-4 py-2 text-sm font-medium text-cream hover:bg-forest/90"
           >
-            Choose photo
+            {isEditing ? "Replace photo" : "Choose photo"}
           </button>
           <span className="text-sm text-forest/60">
-            {fileName ?? "No photo selected"}
+            {fileName ?? (isEditing ? "Keeping current photo" : "No photo selected")}
           </span>
         </div>
         {preview && (
-          // eslint-disable-next-line @next/next/no-img-element -- ephemeral client-side blob: preview, not a real remote/optimizable image
+          // eslint-disable-next-line @next/next/no-img-element -- may be a client-side blob: preview, not always a real remote/optimizable image
           <img
             src={preview}
             alt="Preview"
@@ -73,7 +78,13 @@ export default function SellForm() {
         <label htmlFor="title" className="text-sm font-medium">
           Title
         </label>
-        <input id="title" name="title" required className={inputClasses} />
+        <input
+          id="title"
+          name="title"
+          required
+          defaultValue={listing?.title}
+          className={inputClasses}
+        />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -84,6 +95,7 @@ export default function SellForm() {
           id="description"
           name="description"
           rows={3}
+          defaultValue={listing?.description}
           className={inputClasses}
         />
       </div>
@@ -100,6 +112,7 @@ export default function SellForm() {
             min={0}
             step="0.01"
             required
+            defaultValue={listing?.price}
             className={inputClasses}
           />
         </div>
@@ -112,6 +125,7 @@ export default function SellForm() {
             name="size"
             required
             placeholder="e.g. M, 42, One size"
+            defaultValue={listing?.size}
             className={inputClasses}
           />
         </div>
@@ -126,7 +140,7 @@ export default function SellForm() {
             id="category"
             name="category"
             required
-            defaultValue=""
+            defaultValue={listing?.category ?? ""}
             className={inputClasses}
           >
             <option value="" disabled>
@@ -147,7 +161,7 @@ export default function SellForm() {
             id="condition"
             name="condition"
             required
-            defaultValue=""
+            defaultValue={listing?.condition ?? ""}
             className={inputClasses}
           >
             <option value="" disabled>
@@ -169,7 +183,13 @@ export default function SellForm() {
         disabled={pending}
         className="mt-2 rounded-full bg-forest px-5 py-3 font-medium text-cream hover:bg-forest/90 disabled:opacity-50"
       >
-        {pending ? "Publishing..." : "Publish listing"}
+        {pending
+          ? isEditing
+            ? "Saving..."
+            : "Publishing..."
+          : isEditing
+            ? "Save changes"
+            : "Publish listing"}
       </button>
     </form>
   );

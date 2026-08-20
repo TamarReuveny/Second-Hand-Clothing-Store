@@ -84,6 +84,12 @@ export default async function MyListingsPage() {
               >
                 View
               </Link>
+              <Link
+                href={`/my-listings/${listing.id}/edit`}
+                className="text-sm font-medium text-forest underline"
+              >
+                Edit
+              </Link>
               <form action={deleteListing.bind(null, listing.id)}>
                 <button
                   type="submit"
