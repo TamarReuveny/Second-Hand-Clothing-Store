@@ -26,12 +26,18 @@ export default async function EditListingPage(
     notFound();
   }
 
+  const { data: existingImages } = await supabase
+    .from("listing_images")
+    .select("*")
+    .eq("listing_id", id)
+    .order("position", { ascending: true });
+
   return (
     <main className="mx-auto w-full max-w-lg flex-1 px-6 py-10">
       <h1 className="font-serif text-2xl font-semibold text-forest">
         Edit listing
       </h1>
-      <SellForm listing={listing} />
+      <SellForm listing={listing} existingImages={existingImages ?? []} />
     </main>
   );
 }

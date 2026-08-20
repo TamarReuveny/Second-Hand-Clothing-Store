@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getListingImageUrl } from "@/lib/supabase/storage";
+import { getCoverImageUrls } from "@/lib/listing-images";
 
 export default async function MyOrdersPage() {
   const supabase = await createClient();
@@ -24,13 +24,14 @@ export default async function MyOrdersPage() {
   const { data: listingRows } = listingIds.length
     ? await supabase
         .from("listings")
-        .select("id, title, image_path, size")
+        .select("id, title, size")
         .in("id", listingIds)
     : { data: [] };
 
   const listingsById = new Map(
     (listingRows ?? []).map((listing) => [listing.id, listing]),
   );
+  const coverImageUrls = await getCoverImageUrls(supabase, listingIds);
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
@@ -56,9 +57,9 @@ export default async function MyOrdersPage() {
                 className="flex items-center gap-4 rounded-xl border border-forest/10 bg-white/60 p-4"
               >
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-forest/5">
-                  {getListingImageUrl(listing?.image_path ?? null) && (
+                  {coverImageUrls.get(order.listing_id) && (
                     <Image
-                      src={getListingImageUrl(listing?.image_path ?? null)!}
+                      src={coverImageUrls.get(order.listing_id)!}
                       alt={listing?.title ?? "Listing"}
                       fill
                       sizes="64px"

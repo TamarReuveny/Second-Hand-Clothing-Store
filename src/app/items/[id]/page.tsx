@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import BuyButton from "@/components/BuyButton";
+import PhotoGallery from "@/components/PhotoGallery";
 import { getListingImageUrl } from "@/lib/supabase/storage";
 import type { ListingRow } from "@/lib/supabase/types";
 
@@ -38,22 +38,21 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
   } = await supabase.auth.getUser();
 
   const isOwnListing = user?.id === listing.seller_id;
-  const imageUrl = getListingImageUrl(listing.image_path);
+
+  const { data: images } = await supabase
+    .from("listing_images")
+    .select("image_path")
+    .eq("listing_id", listing.id)
+    .order("position", { ascending: true });
+
+  const imageUrls = (images ?? [])
+    .map((img) => getListingImageUrl(img.image_path))
+    .filter((url): url is string => Boolean(url));
 
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-10">
       <div className="grid gap-8 sm:grid-cols-2">
-        <div className="relative aspect-square w-full rounded-2xl bg-forest/5">
-          {imageUrl && (
-            <Image
-              src={imageUrl}
-              alt={listing.title}
-              fill
-              sizes="(min-width: 640px) 50vw, 100vw"
-              className="rounded-2xl object-cover"
-            />
-          )}
-        </div>
+        <PhotoGallery imageUrls={imageUrls} alt={listing.title} />
         <div className="flex flex-col gap-4">
           <div>
             <h1 className="font-serif text-2xl font-semibold text-forest">

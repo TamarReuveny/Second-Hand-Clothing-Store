@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { ListingRow, Category } from "@/lib/supabase/types";
-import { getListingImageUrl } from "@/lib/supabase/storage";
 
 const conditionLabels: Record<ListingRow["condition"], string> = {
   new: "New",
@@ -19,9 +18,13 @@ const categoryColors: Record<Category, string> = {
   accessories: "bg-lavender-light text-lavender",
 };
 
-export default function ItemCard({ listing }: { listing: ListingRow }) {
-  const imageUrl = getListingImageUrl(listing.image_path);
-
+export default function ItemCard({
+  listing,
+  imageUrl,
+}: {
+  listing: ListingRow;
+  imageUrl: string | null;
+}) {
   return (
     <Link
       href={`/items/${listing.id}`}

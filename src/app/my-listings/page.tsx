@@ -3,7 +3,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { deleteListing } from "@/app/actions/listings";
-import { getListingImageUrl } from "@/lib/supabase/storage";
+import { getCoverImageUrls } from "@/lib/listing-images";
 
 export default async function MyListingsPage() {
   const supabase = await createClient();
@@ -20,6 +20,11 @@ export default async function MyListingsPage() {
     .select("*")
     .eq("seller_id", user.id)
     .order("created_at", { ascending: false });
+
+  const coverImageUrls = await getCoverImageUrls(
+    supabase,
+    (listings ?? []).map((listing) => listing.id),
+  );
 
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-10">
@@ -51,9 +56,9 @@ export default async function MyListingsPage() {
               className="flex items-center gap-4 rounded-xl border border-forest/10 bg-white/60 p-4"
             >
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-forest/5">
-                {getListingImageUrl(listing.image_path) && (
+                {coverImageUrls.get(listing.id) && (
                   <Image
-                    src={getListingImageUrl(listing.image_path)!}
+                    src={coverImageUrls.get(listing.id)!}
                     alt={listing.title}
                     fill
                     sizes="64px"

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ItemCard from "@/components/ItemCard";
 import { createClient } from "@/lib/supabase/server";
+import { getCoverImageUrls } from "@/lib/listing-images";
 
 const FEATURES = [
   { color: "bg-teal", label: "Better for the planet" },
@@ -18,6 +19,10 @@ export default async function Home() {
     .order("created_at", { ascending: false });
 
   const items = listings ?? [];
+  const coverImageUrls = await getCoverImageUrls(
+    supabase,
+    items.map((item) => item.id),
+  );
 
   return (
     <main className="flex-1">
@@ -89,7 +94,11 @@ export default async function Home() {
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {items.map((listing) => (
-              <ItemCard key={listing.id} listing={listing} />
+              <ItemCard
+                key={listing.id}
+                listing={listing}
+                imageUrl={coverImageUrls.get(listing.id) ?? null}
+              />
             ))}
           </div>
         )}

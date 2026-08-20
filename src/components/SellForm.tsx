@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { createListing, updateListing } from "@/app/actions/listings";
 import { getListingImageUrl } from "@/lib/supabase/storage";
-import type { ListingRow } from "@/lib/supabase/types";
+import type { ListingImageRow, ListingRow } from "@/lib/supabase/types";
 
 const CATEGORIES = [
   "tops",
@@ -14,64 +14,137 @@ const CATEGORIES = [
   "accessories",
 ] as const;
 const CONDITIONS = ["new", "like-new", "good", "fair"] as const;
+const MAX_PHOTOS = 6;
 
 const inputClasses =
   "rounded-lg border border-forest/20 bg-white/60 px-3 py-2 text-forest focus:border-teal focus:outline-none";
 
-export default function SellForm({ listing }: { listing?: ListingRow }) {
+export default function SellForm({
+  listing,
+  existingImages = [],
+}: {
+  listing?: ListingRow;
+  existingImages?: ListingImageRow[];
+}) {
   const isEditing = Boolean(listing);
   const action = listing
     ? updateListing.bind(null, listing.id)
     : createListing;
   const [state, formAction, pending] = useActionState(action, undefined);
-  const [preview, setPreview] = useState<string | null>(
-    listing ? getListingImageUrl(listing.image_path) : null,
-  );
-  const [fileName, setFileName] = useState<string | null>(null);
+
+  const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
+  const [newFiles, setNewFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    setPreview(file ? URL.createObjectURL(file) : preview);
-    setFileName(file?.name ?? null);
+  const keptExisting = existingImages.filter((img) => !removedIds.has(img.id));
+  const totalPhotos = keptExisting.length + newFiles.length;
+
+  function handleAddFiles(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = "";
+    if (files.length === 0) return;
+    setNewFiles((prev) => [...prev, ...files].slice(0, MAX_PHOTOS));
   }
+
+  function removeNewFile(index: number) {
+    setNewFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function removeExisting(id: string) {
+    setRemovedIds((prev) => new Set(prev).add(id));
+  }
+
+  // Keep the actual <input type="file"> in sync with our state so the
+  // form submits exactly the files the user sees in the preview grid.
+  useEffect(() => {
+    if (!fileInputRef.current) return;
+    const dt = new DataTransfer();
+    newFiles.forEach((file) => dt.items.add(file));
+    fileInputRef.current.files = dt.files;
+  }, [newFiles]);
+
+  const newFilePreviews = newFiles.map((file) => URL.createObjectURL(file));
 
   return (
     <form action={formAction} className="mt-6 flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="photo" className="text-sm font-medium">
-          Photo
+        <label className="text-sm font-medium">
+          Photos ({totalPhotos}/{MAX_PHOTOS})
         </label>
         <input
           ref={fileInputRef}
-          id="photo"
-          name="photo"
+          name="photos"
           type="file"
           accept="image/*"
-          required={!isEditing}
-          onChange={handlePhotoChange}
+          multiple
+          required={!isEditing && totalPhotos === 0}
+          onChange={handleAddFiles}
           className="hidden"
         />
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="rounded-full bg-forest px-4 py-2 text-sm font-medium text-cream hover:bg-forest/90"
-          >
-            {isEditing ? "Replace photo" : "Choose photo"}
-          </button>
-          <span className="text-sm text-forest/60">
-            {fileName ?? (isEditing ? "Keeping current photo" : "No photo selected")}
-          </span>
+        {removedIds.size > 0 &&
+          [...removedIds].map((id) => (
+            <input key={id} type="hidden" name="removeImages" value={id} />
+          ))}
+
+        <div className="flex flex-wrap gap-2">
+          {keptExisting.map((img) => {
+            const url = getListingImageUrl(img.image_path);
+            return (
+              <div
+                key={img.id}
+                className="relative h-20 w-20 overflow-hidden rounded-lg bg-forest/5"
+              >
+                {url && (
+                  // eslint-disable-next-line @next/next/no-img-element -- small local preview grid, not worth next/image overhead
+                  <img
+                    src={url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeExisting(img.id)}
+                  className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-forest/80 text-xs text-cream hover:bg-forest"
+                  aria-label="Remove photo"
+                >
+                  ×
+                </button>
+              </div>
+            );
+          })}
+          {newFiles.map((file, index) => (
+            <div
+              key={`${file.name}-${index}`}
+              className="relative h-20 w-20 overflow-hidden rounded-lg bg-forest/5"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- ephemeral client-side blob: preview */}
+              <img
+                src={newFilePreviews[index]}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => removeNewFile(index)}
+                className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-forest/80 text-xs text-cream hover:bg-forest"
+                aria-label="Remove photo"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          {totalPhotos < MAX_PHOTOS && (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-forest/30 text-forest/60 hover:border-forest/60 hover:text-forest"
+            >
+              <span className="text-xl leading-none">+</span>
+              <span className="text-xs">Add</span>
+            </button>
+          )}
         </div>
-        {preview && (
-          // eslint-disable-next-line @next/next/no-img-element -- may be a client-side blob: preview, not always a real remote/optimizable image
-          <img
-            src={preview}
-            alt="Preview"
-            className="mt-2 h-40 w-40 rounded-lg object-cover"
-          />
-        )}
       </div>
 
       <div className="flex flex-col gap-1">

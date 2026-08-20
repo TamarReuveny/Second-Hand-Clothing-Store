@@ -41,7 +41,6 @@ export type Database = {
           size: string;
           condition: Condition;
           category: Category;
-          image_path: string | null;
           status: ListingStatus;
           created_at: string;
         };
@@ -54,7 +53,6 @@ export type Database = {
           size: string;
           condition: Condition;
           category: Category;
-          image_path?: string | null;
           status?: ListingStatus;
           created_at?: string;
         };
@@ -67,8 +65,31 @@ export type Database = {
           size?: string;
           condition?: Condition;
           category?: Category;
-          image_path?: string | null;
           status?: ListingStatus;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      listing_images: {
+        Row: {
+          id: string;
+          listing_id: string;
+          image_path: string;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          listing_id: string;
+          image_path: string;
+          position?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          listing_id?: string;
+          image_path?: string;
+          position?: number;
           created_at?: string;
         };
         Relationships: [];
@@ -112,3 +133,5 @@ export type Database = {
 };
 
 export type ListingRow = Database["public"]["Tables"]["listings"]["Row"];
+export type ListingImageRow =
+  Database["public"]["Tables"]["listing_images"]["Row"];

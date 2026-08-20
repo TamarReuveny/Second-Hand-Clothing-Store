@@ -16,6 +16,7 @@ const CATEGORIES: Category[] = [
 ];
 const CONDITIONS: Condition[] = ["new", "like-new", "good", "fair"];
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+const MAX_PHOTOS = 6;
 
 export type ListingFormState = { error: string } | undefined;
 
@@ -53,6 +54,51 @@ function parseListingFields(formData: FormData): ParsedFields | { error: string 
   return { title, description, price, size, condition, category };
 }
 
+function getNewPhotos(formData: FormData): File[] | { error: string } {
+  const photos = formData
+    .getAll("photos")
+    .filter((p): p is File => p instanceof File && p.size > 0);
+
+  for (const photo of photos) {
+    if (!photo.type.startsWith("image/")) {
+      return { error: "All photos must be image files." };
+    }
+    if (photo.size > MAX_PHOTO_SIZE) {
+      return { error: "Each photo must be smaller than 5MB." };
+    }
+  }
+
+  return photos;
+}
+
+async function uploadPhotos(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  photos: File[],
+): Promise<{ paths: string[] } | { error: string }> {
+  const uploadedPaths: string[] = [];
+
+  for (const photo of photos) {
+    const extension = photo.name.split(".").pop() || "jpg";
+    const imagePath = `${userId}/${crypto.randomUUID()}.${extension}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(LISTING_IMAGES_BUCKET)
+      .upload(imagePath, photo, { contentType: photo.type });
+
+    if (uploadError) {
+      if (uploadedPaths.length) {
+        await supabase.storage.from(LISTING_IMAGES_BUCKET).remove(uploadedPaths);
+      }
+      return { error: uploadError.message };
+    }
+
+    uploadedPaths.push(imagePath);
+  }
+
+  return { paths: uploadedPaths };
+}
+
 export async function createListing(
   _prevState: ListingFormState,
   formData: FormData,
@@ -71,37 +117,45 @@ export async function createListing(
     return fields;
   }
 
-  const photo = formData.get("photo");
-
-  if (!(photo instanceof File) || photo.size === 0) {
-    return { error: "Please add a photo of the item." };
+  const photos = getNewPhotos(formData);
+  if ("error" in photos) {
+    return photos;
   }
-  if (!photo.type.startsWith("image/")) {
-    return { error: "Photo must be an image file." };
+  if (photos.length === 0) {
+    return { error: "Please add at least one photo of the item." };
   }
-  if (photo.size > MAX_PHOTO_SIZE) {
-    return { error: "Photo must be smaller than 5MB." };
-  }
-
-  const extension = photo.name.split(".").pop() || "jpg";
-  const imagePath = `${user.id}/${crypto.randomUUID()}.${extension}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from(LISTING_IMAGES_BUCKET)
-    .upload(imagePath, photo, { contentType: photo.type });
-
-  if (uploadError) {
-    return { error: uploadError.message };
+  if (photos.length > MAX_PHOTOS) {
+    return { error: `You can upload up to ${MAX_PHOTOS} photos.` };
   }
 
-  const { error } = await supabase.from("listings").insert({
-    seller_id: user.id,
-    ...fields,
-    image_path: imagePath,
-  });
+  const uploaded = await uploadPhotos(supabase, user.id, photos);
+  if ("error" in uploaded) {
+    return uploaded;
+  }
 
-  if (error) {
-    return { error: error.message };
+  const { data: newListing, error } = await supabase
+    .from("listings")
+    .insert({ seller_id: user.id, ...fields })
+    .select("id")
+    .single();
+
+  if (error || !newListing) {
+    await supabase.storage.from(LISTING_IMAGES_BUCKET).remove(uploaded.paths);
+    return { error: error?.message ?? "Failed to create listing." };
+  }
+
+  const { error: imagesError } = await supabase.from("listing_images").insert(
+    uploaded.paths.map((image_path, position) => ({
+      listing_id: newListing.id,
+      image_path,
+      position,
+    })),
+  );
+
+  if (imagesError) {
+    await supabase.storage.from(LISTING_IMAGES_BUCKET).remove(uploaded.paths);
+    await supabase.from("listings").delete().eq("id", newListing.id);
+    return { error: imagesError.message };
   }
 
   revalidatePath("/");
@@ -123,14 +177,14 @@ export async function updateListing(
     redirect("/login");
   }
 
-  const { data: existing } = await supabase
+  const { data: existingListing } = await supabase
     .from("listings")
-    .select("id, image_path")
+    .select("id")
     .eq("id", listingId)
     .eq("seller_id", user.id)
     .single();
 
-  if (!existing) {
+  if (!existingListing) {
     return { error: "Listing not found." };
   }
 
@@ -139,45 +193,78 @@ export async function updateListing(
     return fields;
   }
 
-  const photo = formData.get("photo");
-  let imagePath = existing.image_path;
-  let oldImagePath: string | null = null;
+  const { data: existingImages } = await supabase
+    .from("listing_images")
+    .select("id, image_path")
+    .eq("listing_id", listingId)
+    .order("position", { ascending: true });
 
-  if (photo instanceof File && photo.size > 0) {
-    if (!photo.type.startsWith("image/")) {
-      return { error: "Photo must be an image file." };
-    }
-    if (photo.size > MAX_PHOTO_SIZE) {
-      return { error: "Photo must be smaller than 5MB." };
-    }
+  const removeIds = new Set(formData.getAll("removeImages").map(String));
+  const keptImages = (existingImages ?? []).filter((img) => !removeIds.has(img.id));
+  const imagesToDelete = (existingImages ?? []).filter((img) => removeIds.has(img.id));
 
-    const extension = photo.name.split(".").pop() || "jpg";
-    const newImagePath = `${user.id}/${crypto.randomUUID()}.${extension}`;
+  const newPhotos = getNewPhotos(formData);
+  if ("error" in newPhotos) {
+    return newPhotos;
+  }
 
-    const { error: uploadError } = await supabase.storage
-      .from(LISTING_IMAGES_BUCKET)
-      .upload(newImagePath, photo, { contentType: photo.type });
+  const totalPhotos = keptImages.length + newPhotos.length;
+  if (totalPhotos === 0) {
+    return { error: "A listing needs at least one photo." };
+  }
+  if (totalPhotos > MAX_PHOTOS) {
+    return { error: `You can have up to ${MAX_PHOTOS} photos.` };
+  }
 
-    if (uploadError) {
-      return { error: uploadError.message };
-    }
-
-    oldImagePath = imagePath;
-    imagePath = newImagePath;
+  const uploaded = await uploadPhotos(supabase, user.id, newPhotos);
+  if ("error" in uploaded) {
+    return uploaded;
   }
 
   const { error } = await supabase
     .from("listings")
-    .update({ ...fields, image_path: imagePath })
+    .update(fields)
     .eq("id", listingId)
     .eq("seller_id", user.id);
 
   if (error) {
+    if (uploaded.paths.length) {
+      await supabase.storage.from(LISTING_IMAGES_BUCKET).remove(uploaded.paths);
+    }
     return { error: error.message };
   }
 
-  if (oldImagePath) {
-    await supabase.storage.from(LISTING_IMAGES_BUCKET).remove([oldImagePath]);
+  if (imagesToDelete.length) {
+    await supabase
+      .from("listing_images")
+      .delete()
+      .in(
+        "id",
+        imagesToDelete.map((img) => img.id),
+      );
+    await supabase.storage
+      .from(LISTING_IMAGES_BUCKET)
+      .remove(imagesToDelete.map((img) => img.image_path));
+  }
+
+  // Removing a photo can leave gaps (e.g. position 0 removed, 1 kept), so
+  // renumber the kept images contiguously before appending new ones —
+  // otherwise "position 0" (used for cover thumbnails) can end up pointing
+  // at nothing.
+  await Promise.all(
+    keptImages.map((img, i) =>
+      supabase.from("listing_images").update({ position: i }).eq("id", img.id),
+    ),
+  );
+
+  if (uploaded.paths.length) {
+    await supabase.from("listing_images").insert(
+      uploaded.paths.map((image_path, i) => ({
+        listing_id: listingId,
+        image_path,
+        position: keptImages.length + i,
+      })),
+    );
   }
 
   revalidatePath("/");
@@ -196,18 +283,17 @@ export async function deleteListing(listingId: string) {
     redirect("/login");
   }
 
-  const { data: listing } = await supabase
-    .from("listings")
+  const { data: images } = await supabase
+    .from("listing_images")
     .select("image_path")
-    .eq("id", listingId)
-    .single();
+    .eq("listing_id", listingId);
 
   await supabase.from("listings").delete().eq("id", listingId);
 
-  if (listing?.image_path) {
+  if (images?.length) {
     await supabase.storage
       .from(LISTING_IMAGES_BUCKET)
-      .remove([listing.image_path]);
+      .remove(images.map((img) => img.image_path));
   }
 
   revalidatePath("/");
