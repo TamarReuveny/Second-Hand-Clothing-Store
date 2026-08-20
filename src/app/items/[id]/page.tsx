@@ -74,7 +74,20 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
             <dd>{seller?.display_name ?? "Unknown"}</dd>
           </dl>
 
-          {listing.status === "sold" ? (
+          {isOwnListing ? (
+            <div className="mt-4 flex flex-col gap-2">
+              <p className="text-sm text-forest/60">
+                This is your own listing
+                {listing.status === "sold" ? " (sold)." : "."}
+              </p>
+              <Link
+                href={`/my-listings/${listing.id}/edit`}
+                className="block w-full rounded-full bg-forest px-5 py-3 text-center font-medium text-cream hover:bg-forest/90"
+              >
+                Edit listing
+              </Link>
+            </div>
+          ) : listing.status === "sold" ? (
             <button
               type="button"
               disabled
@@ -82,10 +95,6 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
             >
               Sold
             </button>
-          ) : isOwnListing ? (
-            <p className="mt-4 text-sm text-forest/60">
-              This is your own listing.
-            </p>
           ) : user ? (
             <div className="mt-4">
               <BuyButton listingId={listing.id} />
