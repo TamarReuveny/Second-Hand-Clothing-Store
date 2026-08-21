@@ -143,6 +143,8 @@ export type Database = {
           buyer_id: string;
           seller_id: string;
           price: number;
+          listing_title: string | null;
+          listing_size: string | null;
           created_at: string;
         };
         Insert: {
@@ -151,6 +153,8 @@ export type Database = {
           buyer_id: string;
           seller_id: string;
           price: number;
+          listing_title?: string | null;
+          listing_size?: string | null;
           created_at?: string;
         };
         Update: {
@@ -159,6 +163,8 @@ export type Database = {
           buyer_id?: string;
           seller_id?: string;
           price?: number;
+          listing_title?: string | null;
+          listing_size?: string | null;
           created_at?: string;
         };
         Relationships: [];

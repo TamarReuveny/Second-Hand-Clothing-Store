@@ -83,10 +83,10 @@ export default async function MyOrdersPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-forest">
-                    {listing?.title ?? "Listing removed"}
+                    {listing?.title ?? order.listing_title ?? "Unknown item"}
                   </h3>
                   <p className="text-sm text-forest/60">
-                    ${order.price} · Size {listing?.size} · Ordered{" "}
+                    ${order.price} · Size {listing?.size ?? order.listing_size} · Ordered{" "}
                     {new Date(order.created_at).toLocaleDateString()}
                   </p>
                   <div className="mt-1.5">
