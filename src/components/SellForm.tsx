@@ -14,6 +14,12 @@ const CATEGORIES = [
   "accessories",
 ] as const;
 const CONDITIONS = ["new", "like-new", "good", "fair"] as const;
+const COLORS = [
+  "Black", "White", "Grey", "Beige", "Brown",
+  "Red", "Pink", "Orange", "Yellow",
+  "Green", "Teal", "Blue", "Navy", "Purple",
+  "Multicolor",
+] as const;
 const MAX_PHOTOS = 6;
 
 const inputClasses =
@@ -32,6 +38,7 @@ export default function SellForm({
     : createListing;
   const [state, formAction, pending] = useActionState(action, undefined);
 
+  const [selectedColor, setSelectedColor] = useState<string>(listing?.color ?? "");
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -246,6 +253,29 @@ export default function SellForm({
               </option>
             ))}
           </select>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium">
+          Color <span className="text-red-500">*</span>
+        </label>
+        <input type="hidden" name="color" value={selectedColor} />
+        <div className="flex flex-wrap gap-2">
+          {COLORS.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setSelectedColor(c === selectedColor ? "" : c)}
+              className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                selectedColor === c
+                  ? "border-forest bg-forest text-cream"
+                  : "border-forest/20 text-forest hover:border-forest/40"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
         </div>
       </div>
 

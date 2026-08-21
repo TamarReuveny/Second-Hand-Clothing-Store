@@ -39,6 +39,7 @@ export type Database = {
           description: string;
           price: number;
           size: string;
+          color: string;
           condition: Condition;
           category: Category;
           status: ListingStatus;
@@ -51,6 +52,7 @@ export type Database = {
           description?: string;
           price: number;
           size: string;
+          color: string;
           condition: Condition;
           category: Category;
           status?: ListingStatus;
@@ -63,6 +65,7 @@ export type Database = {
           description?: string;
           price?: number;
           size?: string;
+          color?: string;
           condition?: Condition;
           category?: Category;
           status?: ListingStatus;
@@ -91,6 +94,29 @@ export type Database = {
           image_path?: string;
           position?: number;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      reviews: {
+        Row: {
+          id: string;
+          order_id: string;
+          reviewer_id: string;
+          seller_id: string;
+          rating: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          reviewer_id: string;
+          seller_id: string;
+          rating: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          rating?: number;
         };
         Relationships: [];
       };

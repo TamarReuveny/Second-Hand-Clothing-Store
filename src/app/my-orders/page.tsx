@@ -3,6 +3,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCoverImageUrls } from "@/lib/listing-images";
+import RateOrder from "@/components/RateOrder";
 
 export default async function MyOrdersPage() {
   const supabase = await createClient();
@@ -28,6 +29,18 @@ export default async function MyOrdersPage() {
         .in("id", listingIds)
     : { data: [] };
 
+  const orderIds = (orders ?? []).map((o) => o.id);
+  const { data: reviews } = orderIds.length
+    ? await supabase
+        .from("reviews")
+        .select("order_id, rating")
+        .in("order_id", orderIds)
+    : { data: [] };
+
+  const ratingByOrderId = new Map(
+    (reviews ?? []).map((r) => [r.order_id, r.rating]),
+  );
+
   const listingsById = new Map(
     (listingRows ?? []).map((listing) => [listing.id, listing]),
   );
@@ -51,6 +64,7 @@ export default async function MyOrdersPage() {
         <div className="flex flex-col gap-3">
           {orders.map((order) => {
             const listing = listingsById.get(order.listing_id);
+            const existingRating = ratingByOrderId.get(order.id);
             return (
               <div
                 key={order.id}
@@ -75,6 +89,22 @@ export default async function MyOrdersPage() {
                     ${order.price} · Size {listing?.size} · Ordered{" "}
                     {new Date(order.created_at).toLocaleDateString()}
                   </p>
+                  <div className="mt-1.5">
+                    {existingRating ? (
+                      <p className="text-xs text-forest/50">
+                        You rated:{" "}
+                        <span className="text-sunflower">
+                          {"★".repeat(existingRating)}
+                          {"☆".repeat(5 - existingRating)}
+                        </span>
+                      </p>
+                    ) : (
+                      <RateOrder
+                        orderId={order.id}
+                        sellerId={order.seller_id}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             );

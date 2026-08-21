@@ -25,6 +25,7 @@ type ParsedFields = {
   description: string;
   price: number;
   size: string;
+  color: string;
   condition: Condition;
   category: Category;
 };
@@ -34,12 +35,16 @@ function parseListingFields(formData: FormData): ParsedFields | { error: string 
   const description = String(formData.get("description") ?? "").trim();
   const priceRaw = String(formData.get("price") ?? "");
   const size = String(formData.get("size") ?? "").trim();
+  const color = String(formData.get("color") ?? "").trim();
   const condition = String(formData.get("condition") ?? "") as Condition;
   const category = String(formData.get("category") ?? "") as Category;
   const price = Number(priceRaw);
 
   if (!title || !size) {
     return { error: "Title and size are required." };
+  }
+  if (!color) {
+    return { error: "Please select a color." };
   }
   if (!Number.isFinite(price) || price < 0) {
     return { error: "Price must be a non-negative number." };
@@ -51,7 +56,7 @@ function parseListingFields(formData: FormData): ParsedFields | { error: string 
     return { error: "Please choose a valid category." };
   }
 
-  return { title, description, price, size, condition, category };
+  return { title, description, price, size, color, condition, category };
 }
 
 function getNewPhotos(formData: FormData): File[] | { error: string } {

@@ -33,6 +33,16 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
     .eq("id", listing.seller_id)
     .single();
 
+  const { data: sellerReviews } = await supabase
+    .from("reviews")
+    .select("rating")
+    .eq("seller_id", listing.seller_id);
+
+  const avgRating =
+    sellerReviews && sellerReviews.length > 0
+      ? sellerReviews.reduce((sum, r) => sum + r.rating, 0) / sellerReviews.length
+      : null;
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -71,7 +81,18 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
             <dt className="text-forest/50">Condition</dt>
             <dd>{conditionLabels[listing.condition]}</dd>
             <dt className="text-forest/50">Seller</dt>
-            <dd>{seller?.display_name ?? "Unknown"}</dd>
+            <dd className="flex items-center gap-2">
+              {seller?.display_name ?? "Unknown"}
+              {avgRating !== null && (
+                <span className="flex items-center gap-0.5 text-xs text-forest/60">
+                  <span className="text-sunflower">★</span>
+                  {avgRating.toFixed(1)}
+                  <span className="text-forest/40">
+                    ({sellerReviews!.length})
+                  </span>
+                </span>
+              )}
+            </dd>
           </dl>
 
           {isOwnListing ? (

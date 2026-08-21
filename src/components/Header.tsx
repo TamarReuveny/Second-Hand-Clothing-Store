@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/actions/auth";
 import Logo from "@/components/Logo";
+import SearchInput from "@/components/SearchInput";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -22,9 +23,12 @@ export default async function Header() {
   return (
     <header className="sticky top-0 z-10 border-b border-forest/10 bg-cream/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/">
-          <Logo />
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/">
+            <Logo />
+          </Link>
+          <SearchInput />
+        </div>
         <nav className="flex items-center gap-6 text-sm font-medium text-forest">
           <Link href="/" className="hover:text-teal">
             Browse
