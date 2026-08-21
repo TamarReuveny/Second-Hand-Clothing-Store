@@ -91,7 +91,12 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
             <dd>{conditionLabels[listing.condition]}</dd>
             <dt className="text-forest/50">Seller</dt>
             <dd className="flex items-center gap-2">
-              {seller?.display_name ?? "Unknown"}
+              <Link
+                href={`/sellers/${listing.seller_id}`}
+                className="hover:underline"
+              >
+                {seller?.display_name ?? "Unknown"}
+              </Link>
               {avgRating !== null && (
                 <span className="flex items-center gap-0.5 text-xs text-forest/60">
                   <span className="text-sunflower">★</span>
