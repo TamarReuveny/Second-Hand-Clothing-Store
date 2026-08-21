@@ -11,6 +11,7 @@ export default async function Header() {
   } = await supabase.auth.getUser();
 
   let displayName: string | null = null;
+  let cartCount = 0;
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -18,6 +19,12 @@ export default async function Header() {
       .eq("id", user.id)
       .single();
     displayName = profile?.display_name ?? user.email ?? null;
+
+    const { count } = await supabase
+      .from("cart_items")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id);
+    cartCount = count ?? 0;
   }
 
   return (
@@ -43,6 +50,14 @@ export default async function Header() {
               </Link>
               <Link href="/my-orders" className="hover:text-teal">
                 My orders
+              </Link>
+              <Link href="/cart" className="relative hover:text-teal">
+                Cart
+                {cartCount > 0 && (
+                  <span className="absolute -right-3 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-blush text-xs font-semibold text-forest">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
               <span className="text-forest/60">{displayName}</span>
               <form action={signOut}>

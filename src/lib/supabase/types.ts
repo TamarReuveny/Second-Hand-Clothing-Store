@@ -97,6 +97,22 @@ export type Database = {
         };
         Relationships: [];
       };
+      cart_items: {
+        Row: {
+          id: string;
+          user_id: string;
+          listing_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          listing_id: string;
+          created_at?: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
       reviews: {
         Row: {
           id: string;

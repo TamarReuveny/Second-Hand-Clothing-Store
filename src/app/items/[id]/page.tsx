@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import BuyButton from "@/components/BuyButton";
+import AddToCartButton from "@/components/AddToCartButton";
 import PhotoGallery from "@/components/PhotoGallery";
 import { getListingImageUrl } from "@/lib/supabase/storage";
 import type { ListingRow } from "@/lib/supabase/types";
@@ -48,6 +48,15 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
   } = await supabase.auth.getUser();
 
   const isOwnListing = user?.id === listing.seller_id;
+
+  const { data: cartItem } = user
+    ? await supabase
+        .from("cart_items")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("listing_id", listing.id)
+        .single()
+    : { data: null };
 
   const { data: images } = await supabase
     .from("listing_images")
@@ -118,7 +127,7 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
             </button>
           ) : user ? (
             <div className="mt-4">
-              <BuyButton listingId={listing.id} />
+              <AddToCartButton listingId={listing.id} inCart={!!cartItem} />
             </div>
           ) : (
             <Link
