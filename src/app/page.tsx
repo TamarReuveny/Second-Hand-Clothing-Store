@@ -3,6 +3,7 @@ import ItemCard from "@/components/ItemCard";
 import FiltersBar from "@/components/FiltersBar";
 import { createClient } from "@/lib/supabase/server";
 import { getCoverImageUrls } from "@/lib/listing-images";
+import type { Category, Condition } from "@/lib/supabase/types";
 
 const CATEGORY_SYNONYMS: Record<string, string> = {
   pants: "bottoms",
@@ -64,8 +65,8 @@ export default async function Home({
     const categoryMatch = CATEGORY_SYNONYMS[q.toLowerCase()] ?? q;
     query = query.or(`title.ilike.%${q}%,category.ilike.%${categoryMatch}%`);
   }
-  if (categories.length > 0) query = query.in("category", categories);
-  if (conditions.length > 0) query = query.in("condition", conditions);
+  if (categories.length > 0) query = query.in("category", categories as Category[]);
+  if (conditions.length > 0) query = query.in("condition", conditions as Condition[]);
   if (sizes.length > 0) query = query.in("size", sizes);
   if (colors.length > 0) query = query.in("color", colors);
   if (minPrice) query = query.gte("price", parseFloat(minPrice));
