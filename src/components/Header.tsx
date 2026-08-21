@@ -51,6 +51,9 @@ export default async function Header() {
               <Link href="/my-orders" className="hover:text-teal">
                 My orders
               </Link>
+              <Link href="/my-favorites" className="hover:text-teal">
+                Saved
+              </Link>
               <Link href="/cart" className="relative hover:text-teal">
                 Cart
                 {cartCount > 0 && (

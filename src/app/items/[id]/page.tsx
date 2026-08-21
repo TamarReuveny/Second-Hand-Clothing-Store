@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AddToCartButton from "@/components/AddToCartButton";
+import FavoriteButton from "@/components/FavoriteButton";
 import PhotoGallery from "@/components/PhotoGallery";
 import { getListingImageUrl } from "@/lib/supabase/storage";
 import type { ListingRow } from "@/lib/supabase/types";
@@ -58,6 +59,17 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
         .single()
     : { data: null };
 
+  const { data: favoriteItem } = user && !isOwnListing
+    ? await supabase
+        .from("favorites")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("listing_id", listing.id)
+        .single()
+    : { data: null };
+
+  const isFavorited = !!favoriteItem;
+
   const { data: images } = await supabase
     .from("listing_images")
     .select("image_path")
@@ -74,9 +86,14 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
         <PhotoGallery imageUrls={imageUrls} alt={listing.title} />
         <div className="flex flex-col gap-4">
           <div>
-            <h1 className="font-serif text-2xl font-semibold text-forest">
-              {listing.title}
-            </h1>
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="font-serif text-2xl font-semibold text-forest">
+                {listing.title}
+              </h1>
+              {user && !isOwnListing && (
+                <FavoriteButton listingId={listing.id} isFavorited={isFavorited} />
+              )}
+            </div>
             <p className="mt-1 text-xl font-semibold text-forest">
               ${listing.price}
             </p>

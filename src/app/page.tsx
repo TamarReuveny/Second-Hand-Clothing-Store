@@ -59,6 +59,19 @@ export default async function Home({
   const colors = color?.split(",").filter(Boolean) ?? [];
 
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const favoritedIds = new Set<string>();
+  if (user) {
+    const { data: favs } = await supabase
+      .from("favorites")
+      .select("listing_id")
+      .eq("user_id", user.id);
+    for (const f of favs ?? []) favoritedIds.add(f.listing_id);
+  }
+
   let query = supabase.from("listings").select("*").eq("status", "active");
 
   if (q) {
@@ -205,6 +218,7 @@ export default async function Home({
                 key={listing.id}
                 listing={listing}
                 imageUrl={coverImageUrls.get(listing.id) ?? null}
+                isFavorited={user ? favoritedIds.has(listing.id) : undefined}
               />
             ))}
           </div>
