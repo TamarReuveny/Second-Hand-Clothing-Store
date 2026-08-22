@@ -4,6 +4,9 @@ A marketplace for buying and selling second-hand clothing. Built for the
 RUNI CS 2026 Internet Technologies final project.
 
 **Live app:** https://second-hand-clothing-store.vercel.app
+**Presentation:** `docs/presentation.html` (open locally in a browser — no
+server needed), also hosted at
+https://claude.ai/code/artifact/d7e4cd90-1b79-4a90-be45-2957cbfbe7d2
 
 ## Tech stack
 
