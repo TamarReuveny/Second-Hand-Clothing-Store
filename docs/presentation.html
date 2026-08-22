@@ -1,0 +1,708 @@
+<title>ReWear — Final Presentation</title>
+<style>
+  :root {
+    --cream: #fbf3e7;
+    --cream-panel: #ffffff;
+    --forest: #1f3d2b;
+    --forest-60: rgba(31, 61, 43, 0.62);
+    --forest-35: rgba(31, 61, 43, 0.35);
+    --forest-12: rgba(31, 61, 43, 0.1);
+    --blush: #d9738e;
+    --blush-tint: #f2a6bc;
+    --blush-pale: #fbdde6;
+    --sunflower: #c98f16;
+    --sunflower-tint: #f5c242;
+    --sunflower-pale: #fbe6ab;
+    --teal: #3d7674;
+    --teal-tint: #6fa8a6;
+    --teal-pale: #d3e8e7;
+    --lavender: #7a5f92;
+    --lavender-tint: #b79fcb;
+    --lavender-pale: #e6dcef;
+    --rule: rgba(31, 61, 43, 0.14);
+    --shadow: 0 1px 2px rgba(31, 61, 43, 0.06), 0 12px 32px -18px rgba(31, 61, 43, 0.28);
+    --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --sans: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  :root[data-theme="dark"] {
+    --cream: #142019;
+    --cream-panel: #1b291f;
+    --forest: #f2ece0;
+    --forest-60: rgba(242, 236, 224, 0.66);
+    --forest-35: rgba(242, 236, 224, 0.4);
+    --forest-12: rgba(242, 236, 224, 0.12);
+    --blush: #f6b9cc;
+    --blush-tint: #e78ba6;
+    --blush-pale: #3a2530;
+    --sunflower: #f3cf72;
+    --sunflower-tint: #e0ac3c;
+    --sunflower-pale: #3a3221;
+    --teal: #9fd0ce;
+    --teal-tint: #4f8987;
+    --teal-pale: #1e3634;
+    --lavender: #cdb7e0;
+    --lavender-tint: #9179a8;
+    --lavender-pale: #2c2438;
+    --rule: rgba(242, 236, 224, 0.16);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 20px 44px -20px rgba(0, 0, 0, 0.55);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --cream: #142019;
+      --cream-panel: #1b291f;
+      --forest: #f2ece0;
+      --forest-60: rgba(242, 236, 224, 0.66);
+      --forest-35: rgba(242, 236, 224, 0.4);
+      --forest-12: rgba(242, 236, 224, 0.12);
+      --blush: #f6b9cc;
+      --blush-tint: #e78ba6;
+      --blush-pale: #3a2530;
+      --sunflower: #f3cf72;
+      --sunflower-tint: #e0ac3c;
+      --sunflower-pale: #3a3221;
+      --teal: #9fd0ce;
+      --teal-tint: #4f8987;
+      --teal-pale: #1e3634;
+      --lavender: #cdb7e0;
+      --lavender-tint: #9179a8;
+      --lavender-pale: #2c2438;
+      --rule: rgba(242, 236, 224, 0.16);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 20px 44px -20px rgba(0, 0, 0, 0.55);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--cream);
+    color: var(--forest);
+    font-family: var(--sans);
+    overflow: hidden;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  h1, h2, h3 { font-family: var(--serif); text-wrap: balance; margin: 0; }
+
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 0 0 0.9rem;
+  }
+
+  .deck {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(2rem, 5vw, 5.5rem) clamp(2rem, 8vw, 7rem);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(14px);
+    transition: opacity 0.38s ease, transform 0.38s ease;
+    overflow-y: auto;
+  }
+
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide { transition: none; }
+  }
+
+  .slide-inner { max-width: 78rem; width: 100%; margin: 0 auto; }
+
+  .blob {
+    position: absolute;
+    border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+    filter: blur(0.5px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ---------- Title slide ---------- */
+  .slide-title .blob-a { width: 30vw; height: 30vw; top: -10vw; left: -8vw; background: var(--sunflower-pale); }
+  .slide-title .blob-b { width: 24vw; height: 24vw; bottom: -8vw; right: -6vw; background: var(--teal-pale); }
+  .slide-title .content { position: relative; z-index: 1; }
+  .slide-title h1 {
+    font-size: clamp(3.4rem, 9vw, 6.4rem);
+    font-weight: 600;
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+  }
+  .slide-title .tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    color: var(--blush);
+    margin: 0.6rem 0 2.2rem;
+  }
+  .kicker {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--forest-60);
+    font-weight: 600;
+  }
+  .byline { margin-top: 2.6rem; font-size: 1.05rem; color: var(--forest-60); }
+  .byline strong { color: var(--forest); font-weight: 600; }
+
+  /* ---------- Generic content ---------- */
+  .headline {
+    font-size: clamp(2.1rem, 3.6vw, 3.1rem);
+    font-weight: 500;
+    line-height: 1.14;
+    max-width: 46rem;
+  }
+  .lede {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--forest-60);
+    max-width: 40rem;
+    margin-top: 1.1rem;
+  }
+
+  .grid { display: grid; gap: 1.1rem; margin-top: 2.4rem; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card {
+    background: var(--cream-panel);
+    border: 1px solid var(--rule);
+    border-radius: 16px;
+    padding: 1.4rem 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .card h3 {
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin-bottom: 0.45rem;
+  }
+  .card p { margin: 0; font-size: 0.95rem; line-height: 1.5; color: var(--forest-60); }
+  .card .dot {
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    margin-bottom: 0.7rem;
+  }
+
+  .swatch-blush { background: var(--blush-tint); }
+  .swatch-sunflower { background: var(--sunflower-tint); }
+  .swatch-teal { background: var(--teal-tint); }
+  .swatch-lavender { background: var(--lavender-tint); }
+
+  /* ---------- Architecture ---------- */
+  .stack { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 2.2rem; max-width: 46rem; }
+  .stack-row {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    background: var(--cream-panel);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 1rem 1.3rem;
+    box-shadow: var(--shadow);
+  }
+  .stack-row .tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.28rem 0.6rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .stack-row .label { font-weight: 600; }
+  .stack-row .detail { font-size: 0.88rem; color: var(--forest-60); }
+  .stack-arrow { align-self: center; color: var(--forest-35); font-size: 1.1rem; margin-left: 2.6rem; }
+  .tag-browser { background: var(--lavender-pale); color: var(--lavender); }
+  .tag-next { background: var(--teal-pale); color: var(--teal); }
+  .tag-supabase { background: var(--sunflower-pale); color: var(--sunflower); }
+
+  /* ---------- DB schema ---------- */
+  .db-card { border-left: 3px solid var(--teal-tint); }
+  .db-card .rel { font-size: 0.8rem; color: var(--forest-35); margin-top: 0.55rem; font-family: var(--sans); }
+
+  /* ---------- Flow ---------- */
+  .flow { display: flex; align-items: stretch; gap: 0; margin-top: 2.4rem; flex-wrap: wrap; }
+  .flow-step {
+    flex: 1;
+    min-width: 9.5rem;
+    background: var(--cream-panel);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 1.1rem 1rem;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .flow-step .num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--blush);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .flow-step p { margin: 0; font-size: 0.92rem; line-height: 1.4; }
+  .flow-connector {
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    color: var(--forest-35);
+    font-size: 1.2rem;
+  }
+
+  /* ---------- Stat row ---------- */
+  .stats { display: flex; gap: 2.6rem; margin-top: 2rem; flex-wrap: wrap; }
+  .stat .num {
+    font-family: var(--serif);
+    font-size: 2.6rem;
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .num.blush { color: var(--blush); }
+  .stat .num.teal { color: var(--teal); }
+  .stat .num.sunflower { color: var(--sunflower); }
+  .stat .cap { font-size: 0.85rem; color: var(--forest-60); margin-top: 0.35rem; }
+
+  .callout {
+    margin-top: 1.8rem;
+    max-width: 44rem;
+    padding: 1.1rem 1.4rem;
+    border-radius: 14px;
+    background: var(--blush-pale);
+    border: 1px solid var(--rule);
+  }
+  .callout .eyebrow { color: var(--blush); margin-bottom: 0.4rem; }
+  .callout p { margin: 0; font-size: 0.96rem; line-height: 1.55; }
+
+  ul.plain { list-style: none; margin: 1.9rem 0 0; padding: 0; max-width: 42rem; }
+  ul.plain li {
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--rule);
+    font-size: 1.02rem;
+    line-height: 1.5;
+    display: flex;
+    gap: 0.9rem;
+  }
+  ul.plain li:first-child { border-top: none; }
+  ul.plain li .mk { color: var(--teal); flex-shrink: 0; }
+  ul.plain li strong { font-weight: 600; }
+
+  ol.steps { list-style: none; margin: 1.9rem 0 0; padding: 0; max-width: 42rem; counter-reset: step; }
+  ol.steps li {
+    counter-increment: step;
+    padding: 0.85rem 0 0.85rem 3rem;
+    border-top: 1px solid var(--rule);
+    position: relative;
+    font-size: 1.02rem;
+    line-height: 1.5;
+  }
+  ol.steps li:first-child { border-top: none; }
+  ol.steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0.78rem;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--sunflower);
+    width: 2rem;
+  }
+  ol.steps li strong { font-weight: 600; }
+
+  /* ---------- Closing slide ---------- */
+  .slide-closing .blob-a { width: 26vw; height: 26vw; top: -8vw; right: -6vw; background: var(--blush-pale); }
+  .slide-closing .blob-b { width: 20vw; height: 20vw; bottom: -6vw; left: -4vw; background: var(--lavender-pale); }
+  .links { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 2rem; }
+  .links a {
+    color: var(--forest);
+    font-size: 1.1rem;
+    text-decoration: none;
+    border-bottom: 1px solid var(--forest-35);
+    width: fit-content;
+    padding-bottom: 0.15rem;
+  }
+  .links a:hover { border-color: var(--forest); }
+  .links .link-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--forest-35); margin-top: 1.1rem; }
+  .links .link-label:first-child { margin-top: 0; }
+
+  /* ---------- Nav chrome ---------- */
+  .chrome {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem clamp(1.2rem, 4vw, 3rem);
+    border-top: 1px solid var(--rule);
+    background: var(--cream);
+  }
+  .chrome-left { display: flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; color: var(--forest-35); font-variant-numeric: tabular-nums; }
+  .dots { display: flex; gap: 0.4rem; }
+  .dot-btn {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--forest-12);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  .dot-btn.active { background: var(--teal); width: 1.1rem; border-radius: 999px; transition: width 0.2s ease; }
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: var(--cream-panel);
+    color: var(--forest);
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  .nav-btn:hover { border-color: var(--forest-35); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .nav-btn:focus-visible, .dot-btn:focus-visible, .theme-btn:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
+  .nav-group { display: flex; gap: 0.5rem; align-items: center; }
+  .theme-btn {
+    border: 1px solid var(--rule);
+    background: var(--cream-panel);
+    color: var(--forest-60);
+    border-radius: 999px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.72rem;
+    cursor: pointer;
+  }
+
+  @media (max-width: 720px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .flow { flex-direction: column; }
+    .flow-connector { transform: rotate(90deg); padding: 0.2rem 0; }
+    .stack-arrow { margin-left: 0; }
+  }
+</style>
+
+<div class="deck" id="deck">
+
+  <section class="slide slide-title active">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="slide-inner content">
+      <p class="kicker">RUNI · CS 2026 · Internet Technologies — Final Project</p>
+      <h1>ReWear</h1>
+      <p class="tagline">Give your closet a second life</p>
+      <p class="byline">Second-hand clothing marketplace, built and shipped by<br><strong>Tamar Reuveny</strong> &amp; <strong>Neta Yaar</strong></p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">The problem</p>
+      <h2 class="headline">Good clothes sit unused. Buyers who want them have no easy way in.</h2>
+      <p class="lede">People have used clothing that still has real value — and other people want affordable, sustainable clothing but don't have a simple, trustworthy way to buy it from individual sellers online.</p>
+      <div class="grid grid-2">
+        <div class="card">
+          <span class="dot swatch-sunflower"></span>
+          <h3>What sellers have</h3>
+          <p>Closets full of clothes they've outgrown, or never wear — sitting idle instead of earning anything.</p>
+        </div>
+        <div class="card">
+          <span class="dot swatch-teal"></span>
+          <h3>What buyers want</h3>
+          <p>Good style at a lower price and a lower footprint — without digging through unreliable listings.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">Who it's for</p>
+      <h2 class="headline">A two-sided marketplace, buyer-first</h2>
+      <div class="grid grid-3">
+        <div class="card">
+          <span class="dot swatch-blush"></span>
+          <h3>Buyers</h3>
+          <p>The primary user and the paying customer. The whole experience is optimized around browsing, filtering, and buying with confidence.</p>
+        </div>
+        <div class="card">
+          <span class="dot swatch-sunflower"></span>
+          <h3>Sellers</h3>
+          <p>Anyone can list — a marketplace needs supply. Get a real channel to sell, manage listings, and build a rated reputation.</p>
+        </div>
+        <div class="card">
+          <span class="dot swatch-lavender"></span>
+          <h3>Admin <span style="font-weight:400;color:var(--forest-35)">(planned)</span></h3>
+          <p>Moderates listings and reports, keeps the catalog trustworthy. Scoped for a future version.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">Why it matters</p>
+      <h2 class="headline">Four business goals drove every feature decision</h2>
+      <ul class="plain">
+        <li><span class="mk">—</span><span><strong>Reduce waste, save money.</strong> Every completed sale keeps a garment in use and out of landfill.</span></li>
+        <li><span class="mk">—</span><span><strong>Buy with confidence.</strong> Search, filters, real photos, and seller ratings replace guesswork.</span></li>
+        <li><span class="mk">—</span><span><strong>Low friction to list.</strong> A seller can go from "I have this jacket" to "it's live" in under a minute.</span></li>
+        <li><span class="mk">—</span><span><strong>Build trust between strangers.</strong> Star ratings tied to real completed orders, not self-reported claims.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">The product, live</p>
+      <h2 class="headline">Everything in the spec — actually shipped</h2>
+      <div class="grid grid-4">
+        <div class="card"><h3>Auth</h3><p>Sign up, log in, sessions</p></div>
+        <div class="card"><h3>Listings</h3><p>Up to 6 photos, full edit</p></div>
+        <div class="card"><h3>Search &amp; filters</h3><p>Category, size, color, price, rating</p></div>
+        <div class="card"><h3>Cart &amp; checkout</h3><p>Full purchase flow</p></div>
+        <div class="card"><h3>Seller ratings</h3><p>Post-purchase, public profiles</p></div>
+        <div class="card"><h3>Favorites</h3><p>Save items for later</p></div>
+        <div class="card"><h3>Order history</h3><p>Buyer &amp; seller views</p></div>
+        <div class="card"><h3>Photo gallery</h3><p>Multi-photo item pages</p></div>
+      </div>
+      <div class="callout">
+        <p class="eyebrow" style="margin-bottom:0.3rem;">Demo</p>
+        <p>Live at the URL on the closing slide — worth switching over and clicking through the real thing here.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">How it's built</p>
+      <h2 class="headline">No hand-written API — Server Actions are the API</h2>
+      <div class="stack">
+        <div class="stack-row">
+          <span class="tag tag-browser">Browser</span>
+          <div><div class="label">Client Components</div><div class="detail">Forms, filters, favorite / cart buttons — the interactive slice only</div></div>
+        </div>
+        <div class="stack-arrow">↓ HTTPS</div>
+        <div class="stack-row">
+          <span class="tag tag-next">Next.js 16</span>
+          <div><div class="label">Server Components + Server Actions</div><div class="detail">Pages read data directly; every write is a typed server function, not a REST endpoint</div></div>
+        </div>
+        <div class="stack-arrow">↓ anon key, RLS-scoped</div>
+        <div class="stack-row">
+          <span class="tag tag-supabase">Supabase</span>
+          <div><div class="label">Postgres + Auth + Storage</div><div class="detail">Row Level Security enforces every read and write — the real security boundary</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">Data model</p>
+      <h2 class="headline">Seven tables, all RLS-protected</h2>
+      <div class="grid grid-4" style="margin-top: 1.8rem;">
+        <div class="card db-card"><h3>profiles</h3><p>Public user record</p><p class="rel">1:1 with auth.users</p></div>
+        <div class="card db-card"><h3>listings</h3><p>An item for sale</p><p class="rel">→ seller (profiles)</p></div>
+        <div class="card db-card"><h3>listing_images</h3><p>Up to 6 photos, ordered</p><p class="rel">→ listing</p></div>
+        <div class="card db-card"><h3>orders</h3><p>A completed purchase</p><p class="rel">→ buyer, seller, listing</p></div>
+        <div class="card db-card"><h3>cart_items</h3><p>Queued for checkout</p><p class="rel">→ user, listing</p></div>
+        <div class="card db-card"><h3>favorites</h3><p>Saved listings</p><p class="rel">→ user, listing</p></div>
+        <div class="card db-card"><h3>reviews</h3><p>1–5★ seller rating</p><p class="rel">→ order, seller</p></div>
+      </div>
+      <div class="callout">
+        <p class="eyebrow" style="margin-bottom:0.3rem;">Notable</p>
+        <p>Orders are never inserted directly — a single Postgres function atomically checks availability, locks the row, marks the listing sold, and records the order. Two buyers can't both "win" the same item.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">Core user journey</p>
+      <h2 class="headline">From empty closet to completed sale</h2>
+      <div class="flow">
+        <div class="flow-step"><span class="num">1</span><p>Sign up</p></div>
+        <div class="flow-connector">→</div>
+        <div class="flow-step"><span class="num">2</span><p>List an item with photos</p></div>
+        <div class="flow-connector">→</div>
+        <div class="flow-step"><span class="num">3</span><p>Browse, search, filter</p></div>
+        <div class="flow-connector">→</div>
+        <div class="flow-step"><span class="num">4</span><p>Cart &amp; checkout</p></div>
+        <div class="flow-connector">→</div>
+        <div class="flow-step"><span class="num">5</span><p>Rate the seller</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">Testing</p>
+      <h2 class="headline">The test suite caught a real production bug</h2>
+      <div class="stats">
+        <div class="stat"><div class="num blush">35</div><div class="cap">Unit tests (Vitest)</div></div>
+        <div class="stat"><div class="num teal">32</div><div class="cap">End-to-end tests (Playwright)</div></div>
+        <div class="stat"><div class="num sunflower">1</div><div class="cap">Real RLS bug found &amp; fixed</div></div>
+      </div>
+      <div class="callout">
+        <p class="eyebrow" style="margin-bottom:0.3rem;">What actually happened</p>
+        <p>The e2e buy-flow test found that a buyer got a 404 viewing their own just-purchased item. Root cause: a column-name collision inside a database security policy — <code>orders</code> has its own <code>id</code> column, so an unqualified reference silently pointed at the wrong table. Tests against the real database caught what a mocked unit test never would have.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">Security</p>
+      <h2 class="headline">Row Level Security is the boundary — not app code</h2>
+      <ul class="plain">
+        <li><span class="mk">—</span><span><strong>Authentication</strong> via Supabase Auth; no custom password handling.</span></li>
+        <li><span class="mk">—</span><span><strong>Authorization</strong> enforced in Postgres — a bug in a page's <code>if</code> check is a bug, not a data breach.</span></li>
+        <li><span class="mk">—</span><span><strong>Server Actions</strong> are same-origin only by default (CSRF) with an 8MB body cap.</span></li>
+        <li><span class="mk">—</span><span><strong>Secrets:</strong> only the public anon key is ever used — confirmed by grep, not just habit.</span></li>
+      </ul>
+      <div class="callout" style="background: var(--sunflower-pale);">
+        <p class="eyebrow" style="margin-bottom:0.3rem; color: var(--sunflower);">Known, and documented</p>
+        <p>Checkout is simulated — card data is format-validated but never transmitted or stored. Photo type-checking trusts the browser's MIME claim. No rate limiting yet. All written up, not swept under the rug.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">Scale</p>
+      <h2 class="headline">Fine at tens of users. Here's what breaks first.</h2>
+      <ul class="plain">
+        <li><span class="mk">—</span><span><strong>No pagination anywhere</strong> — the biggest concrete gap. Every list query fetches everything.</span></li>
+        <li><span class="mk">—</span><span><strong>The seller-rating filter</strong> aggregates every review row in app code on each request.</span></li>
+        <li><span class="mk">—</span><span><strong>A few missing indexes</strong> on actively filtered/sorted columns as data grows.</span></li>
+        <li><span class="mk">—</span><span><strong>Item page fires 7 queries sequentially</strong> instead of in parallel.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">If we had more time</p>
+      <h2 class="headline">The next five things we'd build</h2>
+      <ol class="steps">
+        <li><strong>Pagination</strong> across the browse grid, listings, orders, and favorites.</li>
+        <li><strong>Real payments</strong> via a processor like Stripe, replacing the simulated checkout.</li>
+        <li><strong>Rate limiting</strong> on signup, login, and listing creation.</li>
+        <li><strong>Image optimization pipeline</strong> for uploaded photos.</li>
+        <li><strong>Admin moderation &amp; notifications</strong> — both already scoped in the original product spec.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="slide slide-closing">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="slide-inner content">
+      <p class="eyebrow">Thank you</p>
+      <h2 class="headline" style="font-size: clamp(2.6rem, 5vw, 4rem);">Questions?</h2>
+      <div class="links">
+        <span class="link-label">Live app</span>
+        <a href="https://second-hand-clothing-store.vercel.app" target="_blank" rel="noopener">second-hand-clothing-store.vercel.app</a>
+        <span class="link-label">Source</span>
+        <a href="https://github.com/TamarReuveny/Second-Hand-Clothing-Store" target="_blank" rel="noopener">github.com/TamarReuveny/Second-Hand-Clothing-Store</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="chrome">
+  <div class="chrome-left">
+    <span id="slideCount">1 / 13</span>
+    <button class="theme-btn" id="themeToggle" type="button" title="Toggle theme">◐</button>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="nav-group">
+    <button class="nav-btn" id="prevBtn" type="button" aria-label="Previous slide">←</button>
+    <button class="nav-btn" id="nextBtn" type="button" aria-label="Next slide">→</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var dotsWrap = document.getElementById("dots");
+    var countEl = document.getElementById("slideCount");
+    var prevBtn = document.getElementById("prevBtn");
+    var nextBtn = document.getElementById("nextBtn");
+    var current = 0;
+
+    slides.forEach(function (_, i) {
+      var b = document.createElement("button");
+      b.className = "dot-btn" + (i === 0 ? " active" : "");
+      b.type = "button";
+      b.setAttribute("aria-label", "Go to slide " + (i + 1));
+      b.addEventListener("click", function () { goTo(i); });
+      dotsWrap.appendChild(b);
+    });
+    var dots = Array.prototype.slice.call(dotsWrap.children);
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      dots.forEach(function (d, i) { d.classList.toggle("active", i === current); });
+      countEl.textContent = (current + 1) + " / " + slides.length;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
+    }
+
+    function goTo(i) {
+      current = Math.max(0, Math.min(slides.length - 1, i));
+      render();
+    }
+
+    prevBtn.addEventListener("click", function () { goTo(current - 1); });
+    nextBtn.addEventListener("click", function () { goTo(current + 1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); goTo(current + 1); }
+      else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); goTo(current - 1); }
+      else if (e.key === "Home") { e.preventDefault(); goTo(0); }
+      else if (e.key === "End") { e.preventDefault(); goTo(slides.length - 1); }
+    });
+
+    var root = document.documentElement;
+    document.getElementById("themeToggle").addEventListener("click", function () {
+      var cur = root.getAttribute("data-theme");
+      var next = cur === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+    });
+
+    render();
+  })();
+</script>
