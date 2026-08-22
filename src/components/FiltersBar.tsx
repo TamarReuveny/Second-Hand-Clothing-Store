@@ -62,10 +62,18 @@ export default function FiltersBar() {
   const [priceMin, setPriceMin] = useState(minPrice);
   const [priceMax, setPriceMax] = useState(maxPrice);
 
-  useEffect(() => {
-    setPriceMin(searchParams.get("minPrice") ?? "");
-    setPriceMax(searchParams.get("maxPrice") ?? "");
-  }, [searchParams]);
+  // Reset the editable price inputs whenever the URL's price params change
+  // externally (e.g. Clear filters, browser back). Setting state directly
+  // during render like this is React's recommended way to sync local state
+  // with a changing prop, since it bails out before committing rather than
+  // triggering an extra effect-driven re-render.
+  const searchParamsKey = searchParams.toString();
+  const [prevSearchParamsKey, setPrevSearchParamsKey] = useState(searchParamsKey);
+  if (searchParamsKey !== prevSearchParamsKey) {
+    setPrevSearchParamsKey(searchParamsKey);
+    setPriceMin(minPrice);
+    setPriceMax(maxPrice);
+  }
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
