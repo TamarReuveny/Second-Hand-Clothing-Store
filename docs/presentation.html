@@ -1,4 +1,5 @@
-<title>ReWear — Final Presentation</title>
+<meta charset="utf-8">
+<title>ReWear &mdash; Final Presentation</title>
 <style>
   :root {
     --cream: #fbf3e7;
@@ -419,7 +420,7 @@
     <div class="blob blob-a"></div>
     <div class="blob blob-b"></div>
     <div class="slide-inner content">
-      <p class="kicker">RUNI · CS 2026 · Internet Technologies — Final Project</p>
+      <p class="kicker">RUNI &middot; CS 2026 &middot; Internet Technologies &mdash; Final Project</p>
       <h1>ReWear</h1>
       <p class="tagline">Give your closet a second life</p>
       <p class="byline">Second-hand clothing marketplace, built and shipped by<br><strong>Tamar Reuveny</strong> &amp; <strong>Neta Yaar</strong></p>
@@ -430,17 +431,17 @@
     <div class="slide-inner">
       <p class="eyebrow">The problem</p>
       <h2 class="headline">Good clothes sit unused. Buyers who want them have no easy way in.</h2>
-      <p class="lede">People have used clothing that still has real value — and other people want affordable, sustainable clothing but don't have a simple, trustworthy way to buy it from individual sellers online.</p>
+      <p class="lede">People have used clothing that still has real value &mdash; and other people want affordable, sustainable clothing but don't have a simple, trustworthy way to buy it from individual sellers online.</p>
       <div class="grid grid-2">
         <div class="card">
           <span class="dot swatch-sunflower"></span>
           <h3>What sellers have</h3>
-          <p>Closets full of clothes they've outgrown, or never wear — sitting idle instead of earning anything.</p>
+          <p>Closets full of clothes they've outgrown, or never wear &mdash; sitting idle instead of earning anything.</p>
         </div>
         <div class="card">
           <span class="dot swatch-teal"></span>
           <h3>What buyers want</h3>
-          <p>Good style at a lower price and a lower footprint — without digging through unreliable listings.</p>
+          <p>Good style at a lower price and a lower footprint &mdash; without digging through unreliable listings.</p>
         </div>
       </div>
     </div>
@@ -459,7 +460,7 @@
         <div class="card">
           <span class="dot swatch-sunflower"></span>
           <h3>Sellers</h3>
-          <p>Anyone can list — a marketplace needs supply. Get a real channel to sell, manage listings, and build a rated reputation.</p>
+          <p>Anyone can list &mdash; a marketplace needs supply. Get a real channel to sell, manage listings, and build a rated reputation.</p>
         </div>
         <div class="card">
           <span class="dot swatch-lavender"></span>
@@ -475,10 +476,10 @@
       <p class="eyebrow">Why it matters</p>
       <h2 class="headline">Four business goals drove every feature decision</h2>
       <ul class="plain">
-        <li><span class="mk">—</span><span><strong>Reduce waste, save money.</strong> Every completed sale keeps a garment in use and out of landfill.</span></li>
-        <li><span class="mk">—</span><span><strong>Buy with confidence.</strong> Search, filters, real photos, and seller ratings replace guesswork.</span></li>
-        <li><span class="mk">—</span><span><strong>Low friction to list.</strong> A seller can go from "I have this jacket" to "it's live" in under a minute.</span></li>
-        <li><span class="mk">—</span><span><strong>Build trust between strangers.</strong> Star ratings tied to real completed orders, not self-reported claims.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>Reduce waste, save money.</strong> Every completed sale keeps a garment in use and out of landfill.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>Buy with confidence.</strong> Search, filters, real photos, and seller ratings replace guesswork.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>Low friction to list.</strong> A seller can go from "I have this jacket" to "it's live" in under a minute.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>Build trust between strangers.</strong> Star ratings tied to real completed orders, not self-reported claims.</span></li>
       </ul>
     </div>
   </section>
@@ -486,7 +487,7 @@
   <section class="slide">
     <div class="slide-inner">
       <p class="eyebrow">The product, live</p>
-      <h2 class="headline">Everything in the spec — actually shipped</h2>
+      <h2 class="headline">Everything in the spec &mdash; actually shipped</h2>
       <div class="grid grid-4">
         <div class="card"><h3>Auth</h3><p>Sign up, log in, sessions</p></div>
         <div class="card"><h3>Listings</h3><p>Up to 6 photos, full edit</p></div>
@@ -499,7 +500,7 @@
       </div>
       <div class="callout">
         <p class="eyebrow" style="margin-bottom:0.3rem;">Demo</p>
-        <p>Live at the URL on the closing slide — worth switching over and clicking through the real thing here.</p>
+        <p>Live at the URL on the closing slide &mdash; worth switching over and clicking through the real thing here.</p>
       </div>
     </div>
   </section>
@@ -507,21 +508,21 @@
   <section class="slide">
     <div class="slide-inner">
       <p class="eyebrow">How it's built</p>
-      <h2 class="headline">No hand-written API — Server Actions are the API</h2>
+      <h2 class="headline">No hand-written API &mdash; Server Actions are the API</h2>
       <div class="stack">
         <div class="stack-row">
           <span class="tag tag-browser">Browser</span>
-          <div><div class="label">Client Components</div><div class="detail">Forms, filters, favorite / cart buttons — the interactive slice only</div></div>
+          <div><div class="label">Client Components</div><div class="detail">Forms, filters, favorite / cart buttons &mdash; the interactive slice only</div></div>
         </div>
-        <div class="stack-arrow">↓ HTTPS</div>
+        <div class="stack-arrow">&darr; HTTPS</div>
         <div class="stack-row">
           <span class="tag tag-next">Next.js 16</span>
           <div><div class="label">Server Components + Server Actions</div><div class="detail">Pages read data directly; every write is a typed server function, not a REST endpoint</div></div>
         </div>
-        <div class="stack-arrow">↓ anon key, RLS-scoped</div>
+        <div class="stack-arrow">&darr; anon key, RLS-scoped</div>
         <div class="stack-row">
           <span class="tag tag-supabase">Supabase</span>
-          <div><div class="label">Postgres + Auth + Storage</div><div class="detail">Row Level Security enforces every read and write — the real security boundary</div></div>
+          <div><div class="label">Postgres + Auth + Storage</div><div class="detail">Row Level Security enforces every read and write &mdash; the real security boundary</div></div>
         </div>
       </div>
     </div>
@@ -533,16 +534,16 @@
       <h2 class="headline">Seven tables, all RLS-protected</h2>
       <div class="grid grid-4" style="margin-top: 1.8rem;">
         <div class="card db-card"><h3>profiles</h3><p>Public user record</p><p class="rel">1:1 with auth.users</p></div>
-        <div class="card db-card"><h3>listings</h3><p>An item for sale</p><p class="rel">→ seller (profiles)</p></div>
-        <div class="card db-card"><h3>listing_images</h3><p>Up to 6 photos, ordered</p><p class="rel">→ listing</p></div>
-        <div class="card db-card"><h3>orders</h3><p>A completed purchase</p><p class="rel">→ buyer, seller, listing</p></div>
-        <div class="card db-card"><h3>cart_items</h3><p>Queued for checkout</p><p class="rel">→ user, listing</p></div>
-        <div class="card db-card"><h3>favorites</h3><p>Saved listings</p><p class="rel">→ user, listing</p></div>
-        <div class="card db-card"><h3>reviews</h3><p>1–5★ seller rating</p><p class="rel">→ order, seller</p></div>
+        <div class="card db-card"><h3>listings</h3><p>An item for sale</p><p class="rel">&rarr; seller (profiles)</p></div>
+        <div class="card db-card"><h3>listing_images</h3><p>Up to 6 photos, ordered</p><p class="rel">&rarr; listing</p></div>
+        <div class="card db-card"><h3>orders</h3><p>A completed purchase</p><p class="rel">&rarr; buyer, seller, listing</p></div>
+        <div class="card db-card"><h3>cart_items</h3><p>Queued for checkout</p><p class="rel">&rarr; user, listing</p></div>
+        <div class="card db-card"><h3>favorites</h3><p>Saved listings</p><p class="rel">&rarr; user, listing</p></div>
+        <div class="card db-card"><h3>reviews</h3><p>1&ndash;5&#9733; seller rating</p><p class="rel">&rarr; order, seller</p></div>
       </div>
       <div class="callout">
         <p class="eyebrow" style="margin-bottom:0.3rem;">Notable</p>
-        <p>Orders are never inserted directly — a single Postgres function atomically checks availability, locks the row, marks the listing sold, and records the order. Two buyers can't both "win" the same item.</p>
+        <p>Orders are never inserted directly &mdash; a single Postgres function atomically checks availability, locks the row, marks the listing sold, and records the order. Two buyers can't both "win" the same item.</p>
       </div>
     </div>
   </section>
@@ -553,13 +554,13 @@
       <h2 class="headline">From empty closet to completed sale</h2>
       <div class="flow">
         <div class="flow-step"><span class="num">1</span><p>Sign up</p></div>
-        <div class="flow-connector">→</div>
+        <div class="flow-connector">&rarr;</div>
         <div class="flow-step"><span class="num">2</span><p>List an item with photos</p></div>
-        <div class="flow-connector">→</div>
+        <div class="flow-connector">&rarr;</div>
         <div class="flow-step"><span class="num">3</span><p>Browse, search, filter</p></div>
-        <div class="flow-connector">→</div>
+        <div class="flow-connector">&rarr;</div>
         <div class="flow-step"><span class="num">4</span><p>Cart &amp; checkout</p></div>
-        <div class="flow-connector">→</div>
+        <div class="flow-connector">&rarr;</div>
         <div class="flow-step"><span class="num">5</span><p>Rate the seller</p></div>
       </div>
     </div>
@@ -576,7 +577,7 @@
       </div>
       <div class="callout">
         <p class="eyebrow" style="margin-bottom:0.3rem;">What actually happened</p>
-        <p>The e2e buy-flow test found that a buyer got a 404 viewing their own just-purchased item. Root cause: a column-name collision inside a database security policy — <code>orders</code> has its own <code>id</code> column, so an unqualified reference silently pointed at the wrong table. Tests against the real database caught what a mocked unit test never would have.</p>
+        <p>The e2e buy-flow test found that a buyer got a 404 viewing their own just-purchased item. Root cause: a column-name collision inside a database security policy &mdash; <code>orders</code> has its own <code>id</code> column, so an unqualified reference silently pointed at the wrong table. Tests against the real database caught what a mocked unit test never would have.</p>
       </div>
     </div>
   </section>
@@ -584,16 +585,16 @@
   <section class="slide">
     <div class="slide-inner">
       <p class="eyebrow">Security</p>
-      <h2 class="headline">Row Level Security is the boundary — not app code</h2>
+      <h2 class="headline">Row Level Security is the boundary &mdash; not app code</h2>
       <ul class="plain">
-        <li><span class="mk">—</span><span><strong>Authentication</strong> via Supabase Auth; no custom password handling.</span></li>
-        <li><span class="mk">—</span><span><strong>Authorization</strong> enforced in Postgres — a bug in a page's <code>if</code> check is a bug, not a data breach.</span></li>
-        <li><span class="mk">—</span><span><strong>Server Actions</strong> are same-origin only by default (CSRF) with an 8MB body cap.</span></li>
-        <li><span class="mk">—</span><span><strong>Secrets:</strong> only the public anon key is ever used — confirmed by grep, not just habit.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>Authentication</strong> via Supabase Auth; no custom password handling.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>Authorization</strong> enforced in Postgres &mdash; a bug in a page's <code>if</code> check is a bug, not a data breach.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>Server Actions</strong> are same-origin only by default (CSRF) with an 8MB body cap.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>Secrets:</strong> only the public anon key is ever used &mdash; confirmed by grep, not just habit.</span></li>
       </ul>
       <div class="callout" style="background: var(--sunflower-pale);">
         <p class="eyebrow" style="margin-bottom:0.3rem; color: var(--sunflower);">Known, and documented</p>
-        <p>Checkout is simulated — card data is format-validated but never transmitted or stored. Photo type-checking trusts the browser's MIME claim. No rate limiting yet. All written up, not swept under the rug.</p>
+        <p>Checkout is simulated &mdash; card data is format-validated but never transmitted or stored. Photo type-checking trusts the browser's MIME claim. No rate limiting yet. All written up, not swept under the rug.</p>
       </div>
     </div>
   </section>
@@ -603,10 +604,10 @@
       <p class="eyebrow">Scale</p>
       <h2 class="headline">Fine at tens of users. Here's what breaks first.</h2>
       <ul class="plain">
-        <li><span class="mk">—</span><span><strong>No pagination anywhere</strong> — the biggest concrete gap. Every list query fetches everything.</span></li>
-        <li><span class="mk">—</span><span><strong>The seller-rating filter</strong> aggregates every review row in app code on each request.</span></li>
-        <li><span class="mk">—</span><span><strong>A few missing indexes</strong> on actively filtered/sorted columns as data grows.</span></li>
-        <li><span class="mk">—</span><span><strong>Item page fires 7 queries sequentially</strong> instead of in parallel.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>No pagination anywhere</strong> &mdash; the biggest concrete gap. Every list query fetches everything.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>The seller-rating filter</strong> aggregates every review row in app code on each request.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>A few missing indexes</strong> on actively filtered/sorted columns as data grows.</span></li>
+        <li><span class="mk">&mdash;</span><span><strong>Item page fires 7 queries sequentially</strong> instead of in parallel.</span></li>
       </ul>
     </div>
   </section>
@@ -620,7 +621,7 @@
         <li><strong>Real payments</strong> via a processor like Stripe, replacing the simulated checkout.</li>
         <li><strong>Rate limiting</strong> on signup, login, and listing creation.</li>
         <li><strong>Image optimization pipeline</strong> for uploaded photos.</li>
-        <li><strong>Admin moderation &amp; notifications</strong> — both already scoped in the original product spec.</li>
+        <li><strong>Admin moderation &amp; notifications</strong> &mdash; both already scoped in the original product spec.</li>
       </ol>
     </div>
   </section>
@@ -645,12 +646,12 @@
 <div class="chrome">
   <div class="chrome-left">
     <span id="slideCount">1 / 13</span>
-    <button class="theme-btn" id="themeToggle" type="button" title="Toggle theme">◐</button>
+    <button class="theme-btn" id="themeToggle" type="button" title="Toggle theme">&#9680;</button>
   </div>
   <div class="dots" id="dots"></div>
   <div class="nav-group">
-    <button class="nav-btn" id="prevBtn" type="button" aria-label="Previous slide">←</button>
-    <button class="nav-btn" id="nextBtn" type="button" aria-label="Next slide">→</button>
+    <button class="nav-btn" id="prevBtn" type="button" aria-label="Previous slide">&larr;</button>
+    <button class="nav-btn" id="nextBtn" type="button" aria-label="Next slide">&rarr;</button>
   </div>
 </div>
 
