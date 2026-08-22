@@ -3,30 +3,8 @@ import ItemCard from "@/components/ItemCard";
 import FiltersBar from "@/components/FiltersBar";
 import { createClient } from "@/lib/supabase/server";
 import { getCoverImageUrls } from "@/lib/listing-images";
+import { resolveCategorySynonym } from "@/lib/search";
 import type { Category, Condition } from "@/lib/supabase/types";
-
-const CATEGORY_SYNONYMS: Record<string, string> = {
-  pants: "bottoms",
-  trousers: "bottoms",
-  jeans: "bottoms",
-  skirt: "bottoms",
-  shorts: "bottoms",
-  shirt: "tops",
-  blouse: "tops",
-  tee: "tops",
-  top: "tops",
-  jacket: "outerwear",
-  coat: "outerwear",
-  sneakers: "shoes",
-  boots: "shoes",
-  heels: "shoes",
-  sandals: "shoes",
-  belt: "accessories",
-  bag: "accessories",
-  hat: "accessories",
-  scarf: "accessories",
-  dress: "dresses",
-};
 
 const FEATURES = [
   { color: "bg-teal", label: "Better for the planet" },
@@ -75,7 +53,7 @@ export default async function Home({
   let query = supabase.from("listings").select("*").eq("status", "active");
 
   if (q) {
-    const categoryMatch = CATEGORY_SYNONYMS[q.toLowerCase()] ?? q;
+    const categoryMatch = resolveCategorySynonym(q);
     query = query.or(`title.ilike.%${q}%,category.ilike.%${categoryMatch}%`);
   }
   if (categories.length > 0) query = query.in("category", categories as Category[]);

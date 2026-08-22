@@ -4,77 +4,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { LISTING_IMAGES_BUCKET } from "@/lib/supabase/storage";
-import type { Category, Condition } from "@/lib/supabase/types";
-
-const CATEGORIES: Category[] = [
-  "tops",
-  "bottoms",
-  "dresses",
-  "outerwear",
-  "shoes",
-  "accessories",
-];
-const CONDITIONS: Condition[] = ["new", "like-new", "good", "fair"];
-const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
-const MAX_PHOTOS = 6;
+import {
+  MAX_PHOTOS,
+  parseListingFields,
+  getNewPhotos,
+} from "@/lib/listing-validation";
 
 export type ListingFormState = { error: string } | undefined;
-
-type ParsedFields = {
-  title: string;
-  description: string;
-  price: number;
-  size: string;
-  color: string;
-  condition: Condition;
-  category: Category;
-};
-
-function parseListingFields(formData: FormData): ParsedFields | { error: string } {
-  const title = String(formData.get("title") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const priceRaw = String(formData.get("price") ?? "");
-  const size = String(formData.get("size") ?? "").trim();
-  const color = String(formData.get("color") ?? "").trim();
-  const condition = String(formData.get("condition") ?? "") as Condition;
-  const category = String(formData.get("category") ?? "") as Category;
-  const price = Number(priceRaw);
-
-  if (!title || !size) {
-    return { error: "Title and size are required." };
-  }
-  if (!color) {
-    return { error: "Please select a color." };
-  }
-  if (!Number.isFinite(price) || price < 0) {
-    return { error: "Price must be a non-negative number." };
-  }
-  if (!CONDITIONS.includes(condition)) {
-    return { error: "Please choose a valid condition." };
-  }
-  if (!CATEGORIES.includes(category)) {
-    return { error: "Please choose a valid category." };
-  }
-
-  return { title, description, price, size, color, condition, category };
-}
-
-function getNewPhotos(formData: FormData): File[] | { error: string } {
-  const photos = formData
-    .getAll("photos")
-    .filter((p): p is File => p instanceof File && p.size > 0);
-
-  for (const photo of photos) {
-    if (!photo.type.startsWith("image/")) {
-      return { error: "All photos must be image files." };
-    }
-    if (photo.size > MAX_PHOTO_SIZE) {
-      return { error: "Each photo must be smaller than 5MB." };
-    }
-  }
-
-  return photos;
-}
 
 async function uploadPhotos(
   supabase: Awaited<ReturnType<typeof createClient>>,
