@@ -34,6 +34,7 @@ whether the platform takes a commission is a business-model decision to define l
 - Browse/search/filter catalog (category, size, price range, condition)
 - Item detail page
 - Cart / checkout / payment
+- Saved/favorited items (buyer can bookmark listings to revisit later)
 - Order history (buyer) and sales history (seller)
 - Seller dashboard (manage own listings, mark sold, edit/delete)
 - Ratings/reviews of sellers (and optionally buyers)
