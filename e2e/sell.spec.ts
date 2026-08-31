@@ -157,7 +157,7 @@ test.describe("Sold listings are read-only", () => {
     await buyListingAsNewAccountInNewTab(page, listingId);
 
     await page.goto(`/items/${listingId}`);
-    await expect(page.locator("body")).toContainText("read-only");
     await expect(page.locator('a:has-text("Edit listing")')).toHaveCount(0);
+    await expect(page.locator('a:has-text("Back to My listings")')).toHaveCount(1);
   });
 });
