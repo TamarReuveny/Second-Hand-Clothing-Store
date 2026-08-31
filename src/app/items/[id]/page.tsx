@@ -126,12 +126,15 @@ export default async function ItemPage(props: PageProps<"/items/[id]">) {
             </dd>
           </dl>
 
-          {isOwnListing ? (
+          {isOwnListing && listing.status === "sold" ? (
             <div className="mt-4 flex flex-col gap-2">
               <p className="text-sm text-forest/60">
-                This is your own listing
-                {listing.status === "sold" ? " (sold)." : "."}
+                This is your own listing. Sold items are read-only.
               </p>
+            </div>
+          ) : isOwnListing ? (
+            <div className="mt-4 flex flex-col gap-2">
+              <p className="text-sm text-forest/60">This is your own listing.</p>
               <Link
                 href={`/my-listings/${listing.id}/edit`}
                 className="block w-full rounded-full bg-forest px-5 py-3 text-center font-medium text-cream hover:bg-forest/90"

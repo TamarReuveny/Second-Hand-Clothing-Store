@@ -145,4 +145,20 @@ test.describe("Sold listings are read-only", () => {
     await page.goto(`/my-listings/${listingId}/edit`);
     await expect(page).toHaveURL("/my-listings");
   });
+
+  test("item detail page offers no Edit listing button once sold", async ({
+    page,
+  }) => {
+    await signUp(page, "Sold Seller Four");
+    const listingId = await createListingViaUi(page, {
+      title: "Sold Item Detail Guard",
+      price: "27",
+    });
+
+    await buyListingAsNewAccountInNewTab(page, listingId);
+
+    await page.goto(`/items/${listingId}`);
+    await expect(page.locator("body")).toContainText("read-only");
+    await expect(page.locator('a:has-text("Edit listing")')).toHaveCount(0);
+  });
 });
