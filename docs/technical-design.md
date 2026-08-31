@@ -141,6 +141,7 @@ All in `src/app/actions/`, one file per domain:
 | `addToCart`, `removeFromCart` | `cart.ts` | Cart management |
 | `completeCheckout` | `orders.ts` | Calls `purchase_listing` for every cart item, clears the cart |
 | `submitReview` | `reviews.ts` | 1–5 star rating on a completed order |
+| `toggleFavorite` | `favorites.ts` | Save or unsave a listing for the current user |
 
 Sign-in and sign-up run client-side against `supabase.auth` directly (not a
 server action) since they need to set the session in the browser's cookie
@@ -175,5 +176,5 @@ single request — no client-side filtering of a full dataset.
 
 - Checkout is a UI simulation — no real payment processor is integrated.
 - No pagination yet on the browse grid or listing queries.
-- No automated tests yet (planned: Vitest for actions, Playwright for the
-  core user flows).
+- Automated tests are implemented: Vitest unit tests for validation logic
+  and Playwright e2e tests for the core user flows (see `docs/test-spec.md`).
