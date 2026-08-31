@@ -68,10 +68,48 @@ export async function createListingViaUi(
   await fillListingForm(page, opts);
   await page.click('button:has-text("Publish listing")');
   await page.waitForURL("/my-listings", { timeout: 15000 });
-  const url = page.url();
   await page.click(`a:has-text("View")`);
   await page.waitForURL(/\/items\/.+/, { timeout: 10000 });
   const match = page.url().match(/\/items\/([^/?]+)/);
   if (!match) throw new Error("Could not determine created listing id");
   return match[1];
+}
+
+/** Adds a listing to the current (logged-in) user's cart and completes
+ * checkout with a valid-looking test card, marking the listing sold. */
+export async function buyListingAsCurrentUser(page: Page, listingId: string) {
+  await page.goto(`/items/${listingId}`);
+  await page.click('button:has-text("Add to cart")');
+  await page.goto("/checkout");
+  await page.fill('input[name="name"]', "Test Buyer");
+  await page.fill('input[name="phone"]', "5550000000");
+  await page.fill('input[name="address"]', "123 Test St, Testville");
+  await page
+    .locator('input[placeholder="4242 4242 4242 4242"]')
+    .fill("4242424242424242");
+  await page.locator('input[placeholder="MM/YY"]').fill("12/30");
+  await page.locator('input[placeholder="123"]').fill("123");
+  await page.click('button:has-text("Pay")');
+  await page.waitForURL("/my-orders", { timeout: 15000 });
+}
+
+/** Buys a listing as a brand-new second account in a fully isolated
+ * browser context (separate cookie jar), so the original page's
+ * (seller's) session is left untouched — a same-context `newPage()`
+ * would share cookies and silently log the seller's page out too.
+ * Useful for "listing becomes sold, then check back as the seller"
+ * scenarios. */
+export async function buyListingAsNewAccountInNewTab(
+  page: Page,
+  listingId: string,
+) {
+  const browser = page.context().browser();
+  if (!browser) {
+    throw new Error("No browser available to open an isolated context");
+  }
+  const buyerContext = await browser.newContext();
+  const buyerPage = await buyerContext.newPage();
+  await signUp(buyerPage, "Sold Item Buyer");
+  await buyListingAsCurrentUser(buyerPage, listingId);
+  await buyerContext.close();
 }

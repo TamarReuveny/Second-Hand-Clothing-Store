@@ -26,6 +26,10 @@ export default async function EditListingPage(
     notFound();
   }
 
+  if (listing.status === "sold") {
+    redirect("/my-listings");
+  }
+
   const { data: existingImages } = await supabase
     .from("listing_images")
     .select("*")

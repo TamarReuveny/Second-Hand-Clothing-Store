@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { signUp, fillListingForm, createListingViaUi, TEST_PHOTO } from "./helpers";
+import {
+  signUp,
+  fillListingForm,
+  createListingViaUi,
+  buyListingAsNewAccountInNewTab,
+  TEST_PHOTO,
+} from "./helpers";
 
 test.describe("Creating a listing", () => {
   test("publishes with a photo and appears in My Listings", async ({ page }) => {
@@ -103,5 +109,40 @@ test.describe("Editing a listing", () => {
 
     await expect(page).toHaveURL(/\/edit/);
     await expect(page.locator("body")).toContainText("A listing needs at least one photo");
+  });
+});
+
+test.describe("Sold listings are read-only", () => {
+  test("seller sees no Edit/Delete for a sold listing in My Listings", async ({
+    page,
+  }) => {
+    await signUp(page, "Sold Seller Two");
+    const listingId = await createListingViaUi(page, {
+      title: "Sold Delete Guard Item",
+      price: "18",
+    });
+
+    await buyListingAsNewAccountInNewTab(page, listingId);
+
+    await page.goto("/my-listings");
+    await expect(page.locator("body")).toContainText("sold");
+    await expect(page.locator("body")).toContainText("read-only");
+    await expect(page.locator('a:has-text("Edit")')).toHaveCount(0);
+    await expect(page.locator('button:has-text("Delete")')).toHaveCount(0);
+  });
+
+  test("direct navigation to the edit URL of a sold listing redirects away", async ({
+    page,
+  }) => {
+    await signUp(page, "Sold Seller Three");
+    const listingId = await createListingViaUi(page, {
+      title: "Sold Edit Guard Item",
+      price: "22",
+    });
+
+    await buyListingAsNewAccountInNewTab(page, listingId);
+
+    await page.goto(`/my-listings/${listingId}/edit`);
+    await expect(page).toHaveURL("/my-listings");
   });
 });

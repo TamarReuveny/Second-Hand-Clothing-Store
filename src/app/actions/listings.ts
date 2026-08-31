@@ -120,13 +120,16 @@ export async function updateListing(
 
   const { data: existingListing } = await supabase
     .from("listings")
-    .select("id")
+    .select("id, status")
     .eq("id", listingId)
     .eq("seller_id", user.id)
     .single();
 
   if (!existingListing) {
     return { error: "Listing not found." };
+  }
+  if (existingListing.status === "sold") {
+    return { error: "Sold listings can't be edited." };
   }
 
   const fields = parseListingFields(formData);
@@ -222,6 +225,20 @@ export async function deleteListing(listingId: string) {
 
   if (!user) {
     redirect("/login");
+  }
+
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("status")
+    .eq("id", listingId)
+    .eq("seller_id", user.id)
+    .single();
+
+  // Sold listings have an order row pointing at them (orders.listing_id is
+  // ON DELETE RESTRICT, to protect order history), so this delete would
+  // fail at the database level anyway — bail out before attempting it.
+  if (!listing || listing.status === "sold") {
+    return;
   }
 
   const { data: images } = await supabase

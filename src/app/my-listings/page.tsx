@@ -89,20 +89,28 @@ export default async function MyListingsPage() {
               >
                 View
               </Link>
-              <Link
-                href={`/my-listings/${listing.id}/edit`}
-                className="text-sm font-medium text-forest underline"
-              >
-                Edit
-              </Link>
-              <form action={deleteListing.bind(null, listing.id)}>
-                <button
-                  type="submit"
-                  className="text-sm font-medium text-blush hover:underline"
-                >
-                  Delete
-                </button>
-              </form>
+              {listing.status === "active" ? (
+                <>
+                  <Link
+                    href={`/my-listings/${listing.id}/edit`}
+                    className="text-sm font-medium text-forest underline"
+                  >
+                    Edit
+                  </Link>
+                  <form action={deleteListing.bind(null, listing.id)}>
+                    <button
+                      type="submit"
+                      className="text-sm font-medium text-blush hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <span className="text-sm text-forest/40" title="Sold listings are kept as a historical record and can't be edited or deleted">
+                  Sold items are read-only
+                </span>
+              )}
             </div>
           ))}
         </div>

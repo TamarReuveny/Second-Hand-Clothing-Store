@@ -70,6 +70,9 @@ npm run test:e2e  # e2e tests (Playwright) — starts the dev server automatical
 - A non-owner sees Buy/Favorite on an item page; only the owner sees Edit
   (`e2e/permissions.spec.ts`)
 - You cannot buy your own listing (`e2e/buy.spec.ts`)
+- Once a listing is sold, its owner can no longer edit or delete it — no
+  Edit/Delete links in My Listings, and direct navigation to the edit URL
+  redirects away (`e2e/sell.spec.ts`, "Sold listings are read-only")
 
 **Database**
 - Listing creation/edit actually persists photos as separate
@@ -107,6 +110,19 @@ the `reviews` insert policy always-true, meaning a review's `seller_id`
 was never actually verified against the order's real seller. Both are
 fixed in `supabase/migrations/0009_fix_rls_column_shadowing.sql`, with the
 root cause documented there for anyone touching RLS policies later.
+
+A second real bug surfaced through manual use rather than a written test:
+clicking Delete on a sold listing did nothing, with no error shown. The
+database intentionally refuses to delete a listing that has an order
+pointing at it (`orders.listing_id` is `ON DELETE RESTRICT`, so order
+history can't silently disappear), but the app never checked for or
+surfaced that failure — it just tried the delete and moved on. Fixed by
+treating "sold" as a listing's terminal state in the UI and at the
+Server Action layer: My Listings no longer offers Edit/Delete for a sold
+item, `updateListing`/`deleteListing` both check status server-side and
+refuse before ever attempting the doomed operation, and the edit page
+redirects away if navigated to directly. Covered by the new "Sold
+listings are read-only" tests in `e2e/sell.spec.ts`.
 
 ## Known limitations
 
