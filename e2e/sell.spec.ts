@@ -126,7 +126,6 @@ test.describe("Sold listings are read-only", () => {
 
     await page.goto("/my-listings");
     await expect(page.locator("body")).toContainText("sold");
-    await expect(page.locator("body")).toContainText("read-only");
     await expect(page.locator('a:has-text("Edit")')).toHaveCount(0);
     await expect(page.locator('button:has-text("Delete")')).toHaveCount(0);
   });

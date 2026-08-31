@@ -108,7 +108,7 @@ export default async function MyListingsPage() {
                 </>
               ) : (
                 <span className="text-sm text-forest/40" title="Sold listings are kept as a historical record and can't be edited or deleted">
-                  Sold items are read-only
+                  Sold
                 </span>
               )}
             </div>
