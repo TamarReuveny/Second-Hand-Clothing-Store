@@ -172,6 +172,126 @@ per cart item → cart is cleared → redirect to `/my-orders`.
 size/color/rating filters, and sort all become Supabase query clauses in a
 single request — no client-side filtering of a full dataset.
 
+## Project structure
+
+```
+src/
+├─ app/                 # pages and routes (App Router, one folder per route)
+│  ├─ actions/          # server actions, one file per domain (see below)
+│  ├─ items/[id]/       # item detail page
+│  ├─ sellers/[id]/     # seller profile page
+│  ├─ my-listings/[id]/edit/
+│  └─ ...                # sell, cart, checkout, my-orders, my-favorites, login, signup
+├─ components/          # shared UI components (client components + presentational pieces)
+├─ lib/
+│  ├─ supabase/         # server/browser Supabase client setup, DB types, storage helpers
+│  ├─ listing-validation.ts
+│  └─ card-validation.ts
+supabase/migrations/    # numbered SQL migrations (schema + RLS), run in order
+e2e/                    # Playwright end-to-end tests
+```
+
+Each route folder holds its own `page.tsx` (a Server Component that fetches
+data) plus any route-specific pieces; anything reused across routes lives in
+`src/components/`.
+
+## Component structure
+
+Most components are small and single-purpose, split along a clear line:
+Server Components fetch and render data, Client Components own local
+interaction state. Key client components:
+
+| Component | Owns |
+|---|---|
+| `SellForm` | Multi-field listing form + up to 6 photos in local state, kept in sync with the real `<input type=file>` via `DataTransfer` |
+| `CheckoutForm` | Card fields, client-side format validation, wraps `completeCheckout` via `useActionState` |
+| `FiltersBar` | Category/condition/size/color/rating/price filter state, syncs to the URL's query string |
+| `AddToCartButton`, `FavoriteButton` | Optimistic local toggle state + pending flag around their server action call |
+| `RateOrder` | 1–5 star rating input + submission state for `submitReview` |
+| `PhotoGallery` | Selected-photo index for the item detail page's image viewer |
+
+Everything else (`ItemCard`, `Header`, `SearchInput`, `Logo`) is presentational
+or thin state (e.g. a debounced search input).
+
+## State management
+
+There's no global state library (Redux, Zustand, Context) — deliberately.
+State is kept at the smallest scope that needs it:
+
+- **Server state** (listings, orders, favorites, etc.) lives in Postgres and
+  is read fresh on every navigation via Server Components — there's no
+  client-side cache to keep in sync, so "stale data" isn't a class of bug
+  this app has.
+- **Local UI state** (form fields, "is this photo picker open," a pending
+  spinner) is plain `useState` inside the component that owns it, e.g.
+  `SellForm`'s photo list or `CheckoutForm`'s card fields.
+- **Server Action result state** uses React's `useActionState` (e.g.
+  `CheckoutForm`) so the pending/error/success state returned by a Server
+  Action flows straight into the component without a manual fetch+setState
+  dance.
+- **Shared "did this just change" state across components on the same page**
+  (e.g. favorite/cart button reflecting a toggle) uses `useTransition` plus
+  a local optimistic flag, then relies on the next Server Component render
+  (via `router.refresh()` or navigation) to reconcile with the real DB state
+  rather than hand-rolling a client store.
+- **Filter/search state** lives in the URL's query string (`FiltersBar`),
+  not in React state that would be lost on refresh or unshareable via link.
+
+## Error handling
+
+- **Server Actions never throw across the client/server boundary** for
+  expected failures (validation errors, "listing not found," Supabase
+  errors) — they catch the failure and `return { error: "..." }`, a plain
+  object the calling component reads and renders inline (see
+  `src/app/actions/*.ts`). This is deliberate: an uncaught throw in a
+  Server Action produces a generic Next.js error screen with no actionable
+  message, whereas a returned `{ error }` lets the form show exactly what
+  went wrong (e.g. "Sold listings can't be edited.") next to the field that
+  caused it.
+- **Client-side format errors** (e.g. an invalid card number) are caught
+  before the Server Action is even called, so the user sees feedback
+  instantly rather than waiting on a round trip.
+- **Postgres is the last line of defense.** `check` constraints
+  (`listings.price >= 0`, `reviews.rating between 1 and 5`, etc.) and RLS
+  policies reject anything that slips past both the client and the Server
+  Action's own validation, and that rejection surfaces back through the
+  same `{ error }` path — see `docs/security.md` for the full list.
+- **Unexpected/unowned errors** (network failure, Supabase outage) fall
+  through to Next.js's default error boundaries rather than a custom
+  global handler — an acceptable simplification at this project's scope.
+
+## Input validation
+
+Validation happens at three layers, from least to most trusted (full detail
+in `docs/security.md`):
+
+1. **Client-side** — HTML attributes (`required`, `type=file accept=image/*`)
+   plus JS checks (`src/lib/card-validation.ts` for the payment form) give
+   immediate feedback but are trivially bypassable.
+2. **Server Action** — `src/lib/listing-validation.ts` re-checks every field
+   server-side (required fields, non-negative price, condition/category
+   from a fixed allowed set) before touching the database, plus
+   server-side photo MIME-type/size/count checks.
+3. **Database constraints + RLS** — the non-bypassable layer; see
+   `docs/security.md`.
+
+## Key user-experience decisions
+
+- **Optimistic-feeling actions, not optimistic UI.** Favorite/cart toggles
+  show a pending state immediately but wait for the Server Action's actual
+  result before flipping the UI, so a failed request never leaves the
+  button showing a lie.
+- **Sold is a terminal, read-only state everywhere.** Once a listing is
+  sold, Edit/Delete are hidden in My Listings and the edit page itself
+  redirects away if visited directly — the UI never lets a user attempt an
+  action the backend would reject anyway (see the "Bugs this suite
+  actually caught" note in `docs/test-spec.md` for why this matters).
+- **Filters live in the URL** so a filtered view is shareable/bookmarkable
+  and survives a page refresh.
+- **Errors render next to the action that caused them** (inline on the
+  form/button), not as a global toast, since every mutation in this app is
+  scoped to a single, visible piece of UI.
+
 ## Known simplifications (see `docs/security.md` and `docs/scale.md`)
 
 - Checkout is a UI simulation — no real payment processor is integrated.
