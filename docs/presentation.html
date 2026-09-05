@@ -462,11 +462,6 @@
           <h3>Sellers</h3>
           <p>Anyone can list &mdash; a marketplace needs supply. Get a real channel to sell, manage listings, and build a rated reputation.</p>
         </div>
-        <div class="card">
-          <span class="dot swatch-lavender"></span>
-          <h3>Admin <span style="font-weight:400;color:var(--forest-35)">(planned)</span></h3>
-          <p>Moderates listings and reports, keeps the catalog trustworthy. Scoped for a future version.</p>
-        </div>
       </div>
     </div>
   </section>
@@ -505,6 +500,31 @@
       <div class="callout">
         <p class="eyebrow" style="margin-bottom:0.3rem;">Demo</p>
         <p>Live at the URL on the closing slide &mdash; worth switching over and clicking through the real thing here.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="eyebrow">Tech stack</p>
+      <h2 class="headline">Four technology choices, and why</h2>
+      <div class="cards" style="grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 2rem;">
+        <div class="card">
+          <h3>Next.js</h3>
+          <p>A React framework for building web apps. It renders pages on the server, so the user gets a full page immediately instead of waiting for JavaScript to load. It also handles routing, server-side data fetching, and form submissions without needing a separate backend.</p>
+        </div>
+        <div class="card">
+          <h3>Supabase</h3>
+          <p>A managed database service built on Postgres. Gives us a relational database, user authentication, and file storage in one place. The big advantage is Row Level Security — rules written directly in the database that control who can read or write what, so even if the app code has a bug, the data stays protected.</p>
+        </div>
+        <div class="card">
+          <h3>Vercel</h3>
+          <p>A cloud platform for deploying web apps. Every push to GitHub triggers a build and goes live automatically. No server to manage, no manual steps.</p>
+        </div>
+        <div class="card">
+          <h3>TypeScript</h3>
+          <p>A version of JavaScript that adds types. You define what shape your data is, and the editor catches mismatches before you run anything — useful here because data flows between the database, server, and UI.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -635,18 +655,6 @@
     </div>
   </section>
 
-  <section class="slide">
-    <div class="slide-inner">
-      <p class="eyebrow">Scale</p>
-      <h2 class="headline">Fine at tens of users. Here's what breaks first.</h2>
-      <ul class="plain">
-        <li><span class="mk">&mdash;</span><span><strong>No pagination anywhere</strong> &mdash; the biggest concrete gap. Every list query fetches everything.</span></li>
-        <li><span class="mk">&mdash;</span><span><strong>The seller-rating filter</strong> aggregates every review row in app code on each request.</span></li>
-        <li><span class="mk">&mdash;</span><span><strong>A few missing indexes</strong> on actively filtered/sorted columns as data grows.</span></li>
-        <li><span class="mk">&mdash;</span><span><strong>Item page fires 7 queries sequentially</strong> instead of in parallel.</span></li>
-      </ul>
-    </div>
-  </section>
 
   <section class="slide">
     <div class="slide-inner">
